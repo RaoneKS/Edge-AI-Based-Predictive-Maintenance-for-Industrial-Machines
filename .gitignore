@@ -1,0 +1,9 @@
+quartus/de10_standard/db/
+quartus/de10_standard/incremental_db/
+quartus/de10_standard/output_files/
+quartus/de10_standard/*.log
+quartus/de10_standard/*.rpt
+quartus/de10_standard/*.smsg
+quartus/de10_standard/*.qws
+quartus/de10_standard/*.jdi
+__pycache__/
