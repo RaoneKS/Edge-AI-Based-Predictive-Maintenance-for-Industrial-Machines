@@ -274,10 +274,12 @@ module tb_inference_accelerator;
     reg [256*8-1:0] path;
     begin
       path = {dir, "/weights.hex"};
-      $readmemh(path, weight_mem);
-      // Count non-zero entries to determine size
       num_weight_words = (cfg_in_channels / ARRAY_COLS) *
                          (cfg_out_channels / ARRAY_ROWS) * ARRAY_ROWS;
+      // Load only the vector words present in the file.  Reading the entire
+      // fixed-size backing store causes a spurious Icarus warning for every
+      // intentionally short directed test.
+      $readmemh(path, weight_mem, 0, num_weight_words - 1);
       $display("  Loaded %0d weight words", num_weight_words);
     end
   endtask
@@ -287,9 +289,10 @@ module tb_inference_accelerator;
     reg [256*8-1:0] path;
     begin
       path = {dir, "/activations.hex"};
-      $readmemh(path, act_mem);
       num_act_words = (cfg_in_channels / ARRAY_COLS) * cfg_spatial_size *
                       (cfg_out_channels / ARRAY_ROWS);
+      // See load_weights: restrict the range to the generated vector size.
+      $readmemh(path, act_mem, 0, num_act_words - 1);
       $display("  Loaded %0d activation words", num_act_words);
     end
   endtask

@@ -1,0 +1,11 @@
+
+State Machine - |de10_standard_hw_top|bearing_cnn_demo:u_demo|st
+Name st.DONE st.PICK st.FC st.GAP st.C2 st.POOL st.C1 st.IDLE 
+st.IDLE 0 0 0 0 0 0 0 0 
+st.C1 0 0 0 0 0 0 1 1 
+st.POOL 0 0 0 0 0 1 0 1 
+st.C2 0 0 0 0 1 0 0 1 
+st.GAP 0 0 0 1 0 0 0 1 
+st.FC 0 0 1 0 0 0 0 1 
+st.PICK 0 1 0 0 0 0 0 1 
+st.DONE 1 0 0 0 0 0 0 1 

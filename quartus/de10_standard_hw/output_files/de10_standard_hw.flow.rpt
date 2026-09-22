@@ -1,0 +1,123 @@
+Flow report for de10_standard_hw
+Fri Sep 11 05:35:53 2026
+Quartus Prime Version 23.1std.1 Build 993 05/14/2024 SC Standard Edition
+
+
+---------------------
+; Table of Contents ;
+---------------------
+  1. Legal Notice
+  2. Flow Summary
+  3. Flow Settings
+  4. Flow Non-Default Global Settings
+  5. Flow Elapsed Time
+  6. Flow OS Summary
+  7. Flow Log
+  8. Flow Messages
+  9. Flow Suppressed Messages
+
+
+
+----------------
+; Legal Notice ;
+----------------
+Copyright (C) 2024  Intel Corporation. All rights reserved.
+Your use of Intel Corporation's design tools, logic functions 
+and other software and tools, and any partner logic 
+functions, and any output files from any of the foregoing 
+(including device programming or simulation files), and any 
+associated documentation or information are expressly subject 
+to the terms and conditions of the Intel Program License 
+Subscription Agreement, the Intel Quartus Prime License Agreement,
+the Intel FPGA IP License Agreement, or other applicable license
+agreement, including, without limitation, that your use is for
+the sole purpose of programming logic devices manufactured by
+Intel and sold by Intel or its authorized distributors.  Please
+refer to the applicable agreement for further details, at
+https://fpgasoftware.intel.com/eula.
+
+
+
++--------------------------------------------------------------------------------------+
+; Flow Summary                                                                         ;
++---------------------------------+----------------------------------------------------+
+; Flow Status                     ; Successful - Fri Sep 11 05:33:44 2026              ;
+; Quartus Prime Version           ; 23.1std.1 Build 993 05/14/2024 SC Standard Edition ;
+; Revision Name                   ; de10_standard_hw                                   ;
+; Top-level Entity Name           ; de10_standard_hw_top                               ;
+; Family                          ; Cyclone V                                          ;
+; Device                          ; 5CSXFC6D6F31C6                                     ;
+; Timing Models                   ; Final                                              ;
+; Logic utilization (in ALMs)     ; 26,571 / 41,910 ( 63 % )                           ;
+; Total registers                 ; 28808                                              ;
+; Total pins                      ; 14 / 499 ( 3 % )                                   ;
+; Total virtual pins              ; 0                                                  ;
+; Total block memory bits         ; 64 / 5,662,720 ( < 1 % )                           ;
+; Total DSP Blocks                ; 1 / 112 ( < 1 % )                                  ;
+; Total HSSI RX PCSs              ; 0 / 9 ( 0 % )                                      ;
+; Total HSSI PMA RX Deserializers ; 0 / 9 ( 0 % )                                      ;
+; Total HSSI TX PCSs              ; 0 / 9 ( 0 % )                                      ;
+; Total HSSI PMA TX Serializers   ; 0 / 9 ( 0 % )                                      ;
+; Total PLLs                      ; 0 / 15 ( 0 % )                                     ;
+; Total DLLs                      ; 0 / 4 ( 0 % )                                      ;
++---------------------------------+----------------------------------------------------+
+
+
++-----------------------------------------+
+; Flow Settings                           ;
++-------------------+---------------------+
+; Option            ; Setting             ;
++-------------------+---------------------+
+; Start date & time ; 09/11/2026 05:06:49 ;
+; Main task         ; Compilation         ;
+; Revision Name     ; de10_standard_hw    ;
++-------------------+---------------------+
+
+
++---------------------------------------------------------------------------------------------------------+
+; Flow Non-Default Global Settings                                                                        ;
++--------------------------+--------------------------------+------------------+-------------+------------+
+; Assignment Name          ; Value                          ; Default Value    ; Entity Name ; Section Id ;
++--------------------------+--------------------------------+------------------+-------------+------------+
+; COMPILER_SIGNATURE_ID    ; 66017737929317.178908340900081 ; --               ; --          ; --         ;
+; PROJECT_OUTPUT_DIRECTORY ; output_files                   ; --               ; --          ; --         ;
+; SEARCH_PATH              ; model_data                     ; --               ; --          ; --         ;
+; TOP_LEVEL_ENTITY         ; de10_standard_hw_top           ; de10_standard_hw ; --          ; --         ;
++--------------------------+--------------------------------+------------------+-------------+------------+
+
+
++--------------------------------------------------------------------------------------------------------------------------+
+; Flow Elapsed Time                                                                                                        ;
++----------------------+--------------+-------------------------+---------------------+------------------------------------+
+; Module Name          ; Elapsed Time ; Average Processors Used ; Peak Virtual Memory ; Total CPU Time (on all processors) ;
++----------------------+--------------+-------------------------+---------------------+------------------------------------+
+; Analysis & Synthesis ; 00:00:57     ; 4.0                     ; 778 MB              ; 00:01:34                           ;
+; Fitter               ; 00:25:33     ; 1.2                     ; 3058 MB             ; 00:45:18                           ;
+; Assembler            ; 00:00:03     ; 1.0                     ; 618 MB              ; 00:00:02                           ;
+; Timing Analyzer      ; 00:02:08     ; 4.3                     ; 3152 MB             ; 00:06:39                           ;
+; Total                ; 00:28:41     ; --                      ; --                  ; 00:53:33                           ;
++----------------------+--------------+-------------------------+---------------------+------------------------------------+
+
+
++----------------------------------------------------------------------------------------+
+; Flow OS Summary                                                                        ;
++----------------------+------------------+----------------+------------+----------------+
+; Module Name          ; Machine Hostname ; OS Name        ; OS Version ; Processor type ;
++----------------------+------------------+----------------+------------+----------------+
+; Analysis & Synthesis ; raone-LOQ-15ARP9 ; Ubuntu 26.04.1 ; 26         ; x86_64         ;
+; Fitter               ; raone-LOQ-15ARP9 ; Ubuntu 26.04.1 ; 26         ; x86_64         ;
+; Assembler            ; raone-LOQ-15ARP9 ; Ubuntu 26.04.1 ; 26         ; x86_64         ;
+; Timing Analyzer      ; raone-LOQ-15ARP9 ; Ubuntu 26.04.1 ; 26         ; x86_64         ;
++----------------------+------------------+----------------+------------+----------------+
+
+
+------------
+; Flow Log ;
+------------
+quartus_map --read_settings_files=on --write_settings_files=off de10_standard_hw -c de10_standard_hw
+quartus_fit --read_settings_files=off --write_settings_files=off de10_standard_hw -c de10_standard_hw
+quartus_asm --read_settings_files=off --write_settings_files=off de10_standard_hw -c de10_standard_hw
+quartus_sta de10_standard_hw -c de10_standard_hw
+
+
+
