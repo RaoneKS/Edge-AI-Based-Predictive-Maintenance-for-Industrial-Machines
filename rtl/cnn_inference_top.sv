@@ -63,7 +63,7 @@ module cnn_inference_top (
               if((idx+k-2)>=0&&(idx+k-2)<W)
                 acc_tmp[oc]=acc_tmp[oc]+$signed(x[idx+k-2])*$signed(conv1_weights_flat[(k*8+oc)*8 +: 8]);
             if(acc_tmp[oc]<0) acc_tmp[oc]=0;
-            q_tmp=acc_tmp[oc]>>>8;
+            q_tmp=(acc_tmp[oc]+128)>>>8;
             if(q_tmp>127) q_tmp=127;
             if(q_tmp<0) q_tmp=0;
             c1[idx][oc]<=q_tmp[7:0];
@@ -78,13 +78,11 @@ module cnn_inference_top (
         CONV2: begin
           for(oc=0;oc<8;oc=oc+1) begin
             acc_tmp[oc]=$signed(conv2_bias_flat[oc*32 +: 32]);
-            // Reference im2col order is [ch0_t-1,ch0_t,ch0_t+1,ch1_t-1,...].
-            // Iterate channel first, then kernel position to match [K, output_channel] weights.
             for(ch=0;ch<8;ch=ch+1) for(k=0;k<3;k=k+1)
               if((idx+k-1)>=0&&(idx+k-1)<P)
-                acc_tmp[oc]=acc_tmp[oc]+$signed(pool[idx+k-1][ch])*$signed(conv2_weights_flat[(ch*3+k)*8 + oc*8 +: 8]);
+                acc_tmp[oc]=acc_tmp[oc]+$signed(pool[idx+k-1][ch])*$signed(conv2_weights_flat[((ch*3+k)*8 + oc)*8 +: 8]);
             if(acc_tmp[oc]<0) acc_tmp[oc]=0;
-            q_tmp=acc_tmp[oc]>>>8;
+            q_tmp=(acc_tmp[oc]+128)>>>8;
             if(q_tmp>127) q_tmp=127;
             if(q_tmp<0) q_tmp=0;
             c2[idx][oc]<=q_tmp[7:0];
@@ -95,7 +93,12 @@ module cnn_inference_top (
           for(ch=0;ch<C;ch=ch+1) begin
             sum_tmp[ch]=0;
             for(sp=0;sp<P;sp=sp+1) sum_tmp[ch]=sum_tmp[ch]+$signed(c2[sp][ch]);
-            if(sum_tmp[ch]>=0) q_tmp=sum_tmp[ch]>>>7; else q_tmp=-((-sum_tmp[ch])>>>7);
+            if((sum_tmp[ch]&127)==64)
+              q_tmp=((sum_tmp[ch]>>>7)&1)?((sum_tmp[ch]>>>7)+1):(sum_tmp[ch]>>>7);
+            else if((sum_tmp[ch]&127)>64)
+              q_tmp=(sum_tmp[ch]>>>7)+1;
+            else
+              q_tmp=sum_tmp[ch]>>>7;
             if(q_tmp>127) q_tmp=127;
             if(q_tmp<-128) q_tmp=-128;
             gap[ch]<=q_tmp[7:0];
@@ -113,7 +116,10 @@ module cnn_inference_top (
             log_tmp2=log_tmp2+$signed(gap[ch])*$signed(classifier_weights_flat[(ch*4+2)*8 +: 8]);
             log_tmp3=log_tmp3+$signed(gap[ch])*$signed(classifier_weights_flat[(ch*4+3)*8 +: 8]);
           end
-          logits0<=log_tmp0>>>5;logits1<=log_tmp1>>>5;logits2<=log_tmp2>>>5;logits3<=log_tmp3>>>5;
+          logits0<=(log_tmp0>=0)?((log_tmp0+16)>>>5):(-((-log_tmp0+16)>>>5));
+          logits1<=(log_tmp1>=0)?((log_tmp1+16)>>>5):(-((-log_tmp1+16)>>>5));
+          logits2<=(log_tmp2>=0)?((log_tmp2+16)>>>5):(-((-log_tmp2+16)>>>5));
+          logits3<=(log_tmp3>=0)?((log_tmp3+16)>>>5):(-((-log_tmp3+16)>>>5));
           state<=FINISH;
         end
         FINISH: state<=IDLE;

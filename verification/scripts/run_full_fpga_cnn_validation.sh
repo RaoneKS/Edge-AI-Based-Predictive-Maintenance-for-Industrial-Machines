@@ -14,8 +14,17 @@ if [ "$(git branch --show-current)" != "fpga-cnn-integration" ]; then
   exit 2
 fi
 
+python_bin="${PYTHON_BIN:-}"
+if [ -z "$python_bin" ]; then
+  if [ -x "$ROOT/.venv/bin/python3" ]; then
+    python_bin="$ROOT/.venv/bin/python3"
+  else
+    python_bin="python3"
+  fi
+fi
+
 echo "=== 1. Authoritative reference ==="
-python3 verification/scripts/check_cnn_reference.py
+"$python_bin" verification/scripts/check_cnn_reference.py
 
 echo
 echo "=== 2. Generic accelerator regression ==="

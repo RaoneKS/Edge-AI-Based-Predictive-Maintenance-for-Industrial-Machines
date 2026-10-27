@@ -105,7 +105,7 @@ module tb_cnn_inference_top;
         while(!window_ready) @(posedge clk);
         window_sample=in_mem[w*W+s];window_valid=1;@(posedge clk);window_valid=0;
       end
-      wait(done);#1;
+      wait(done);@(posedge clk);
 
       got_value=logits0;reference_value=ref_mem[w*4+0];if(got_value==reference_value) logit_matches=logit_matches+1;else if(w<32) $display("LOGIT MISMATCH w=%0d c=0 got=%0d ref=%0d",w,got_value,reference_value);
       got_value=logits1;reference_value=ref_mem[w*4+1];if(got_value==reference_value) logit_matches=logit_matches+1;else if(w<32) $display("LOGIT MISMATCH w=%0d c=1 got=%0d ref=%0d",w,got_value,reference_value);
@@ -131,7 +131,7 @@ module tb_cnn_inference_top;
       while(!window_ready) @(posedge clk);
       window_sample=in_mem[s];window_valid=1;@(posedge clk);window_valid=0;
     end
-    wait(done);#1;
+    wait(done);@(posedge clk);
     if(logits0!==ref_mem[0]) begin $display("ERROR: back-to-back normal mismatch c0");$fatal(1);end
     if(logits1!==ref_mem[1]) begin $display("ERROR: back-to-back normal mismatch c1");$fatal(1);end
     if(logits2!==ref_mem[2]) begin $display("ERROR: back-to-back normal mismatch c2");$fatal(1);end
@@ -142,7 +142,7 @@ module tb_cnn_inference_top;
       while(!window_ready) @(posedge clk);
       window_sample=in_mem[384*W+s];window_valid=1;@(posedge clk);window_valid=0;
     end
-    wait(done);#1;
+    wait(done);@(posedge clk);
     if(logits0!==ref_mem[384*4+0]) begin $display("ERROR: back-to-back outer mismatch c0");$fatal(1);end
     if(logits1!==ref_mem[384*4+1]) begin $display("ERROR: back-to-back outer mismatch c1");$fatal(1);end
     if(logits2!==ref_mem[384*4+2]) begin $display("ERROR: back-to-back outer mismatch c2");$fatal(1);end
@@ -154,7 +154,7 @@ module tb_cnn_inference_top;
       while(!window_ready) @(posedge clk);
       window_sample=in_mem[s];window_valid=1;@(posedge clk);window_valid=0;
     end
-    wait(done);#1;
+    wait(done);@(posedge clk);
     repeat_logit0=logits0;repeat_logit1=logits1;repeat_logit2=logits2;repeat_logit3=logits3;
 
     @(posedge clk);start=1;@(posedge clk);start=0;
@@ -162,7 +162,7 @@ module tb_cnn_inference_top;
       while(!window_ready) @(posedge clk);
       window_sample=in_mem[s];window_valid=1;@(posedge clk);window_valid=0;
     end
-    wait(done);#1;
+    wait(done);@(posedge clk);
     if(logits0!==repeat_logit0 || logits1!==repeat_logit1 || logits2!==repeat_logit2 || logits3!==repeat_logit3) begin
       $display("ERROR: same-window repeat mismatch");
       $fatal(1);

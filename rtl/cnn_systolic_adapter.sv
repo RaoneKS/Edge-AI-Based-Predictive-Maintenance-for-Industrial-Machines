@@ -23,7 +23,7 @@ module cnn_systolic_adapter (
   logic [5:0] drain_count;
 
   logic [ACT_WIDTH*ARRAY_ROWS-1:0] act_packed;
-  logic [WGT_WIDTH-1:0] wgt_cols [ARRAY_COLS];
+  logic signed [WGT_WIDTH-1:0] wgt_cols [ARRAY_COLS];
   logic [ACC_WIDTH*ARRAY_COLS-1:0] array_acc;
   logic array_valid;
   logic array_overflow;

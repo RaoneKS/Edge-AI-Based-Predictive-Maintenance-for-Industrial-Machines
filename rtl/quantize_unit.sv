@@ -106,7 +106,7 @@ module quantize_unit
           if (with_zp > 32'sd127)
             stage2_data[s2] <= 8'sd127;
           else if (with_zp < -32'sd128)
-            stage2_data[s2] <= -8'sd128;
+            stage2_data[s2] <= 8'sh80;
           else
             stage2_data[s2] <= with_zp[OUT_WIDTH-1:0];
         end

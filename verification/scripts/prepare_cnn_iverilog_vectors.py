@@ -28,7 +28,7 @@ def main():
     emit("conv1_bias.hex", np.load(V/"conv1_bias.npy"), 32)
     emit("conv2_weights.hex", np.load(V/"conv2_weights.npy"), 8)
     emit("conv2_bias.hex", np.load(V/"conv2_bias.npy"), 32)
-    emit("classifier_weights.hex", np.load(V/"classifier_weights.npy"), 8)
+    emit("classifier_weights.hex", np.load(V/"classifier_weights.npy")[:, :4], 8)
     emit("classifier_bias.hex", np.load(V/"classifier_bias.npy"), 32)
     print("Authoritative vectors converted; source .npy files were not modified.")
 

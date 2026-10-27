@@ -165,7 +165,7 @@ package pkg_accelerator;
     if (val > 32'sd127)
       saturate_to_int8 = 8'sd127;
     else if (val < -32'sd128)
-      saturate_to_int8 = -8'sd128;
+      saturate_to_int8 = 8'sh80;
     else
       saturate_to_int8 = val[OUT_WIDTH-1:0];
   endfunction

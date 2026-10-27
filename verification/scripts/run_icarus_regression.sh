@@ -3,7 +3,14 @@
 set -euo pipefail
 
 repo_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-python_bin="${PYTHON_BIN:-python3}"
+python_bin="${PYTHON_BIN:-}"
+if [ -z "$python_bin" ]; then
+  if [ -x "$repo_dir/.venv/bin/python3" ]; then
+    python_bin="$repo_dir/.venv/bin/python3"
+  else
+    python_bin="python3"
+  fi
+fi
 work_dir="${REGRESSION_WORK_DIR:-/tmp/fpga-ai-icarus-regression}"
 
 mkdir -p "$work_dir"

@@ -74,13 +74,13 @@ module bearing_cnn_demo (
   // Fixed model ROMs
   // ---------------------------------------------------------------------------
   logic signed [7:0]  input_rom [0:511];
-  logic signed [7:0]  c1_w     [0:63];
+  logic signed [7:0]  c1_w     [0:39];
   logic signed [7:0]  c2_w     [0:191];
   logic signed [7:0]  fc_w     [0:63];
 
   logic signed [31:0] c1_b [0:7];
   logic signed [31:0] c2_b [0:7];
-  logic signed [31:0] fc_b [0:3];
+  logic signed [31:0] fc_b [0:7];
 
   // ---------------------------------------------------------------------------
   // Intermediate feature memories
@@ -136,7 +136,7 @@ module bearing_cnn_demo (
       if (tmp_q > 32'sd127)
         quantize32 = 8'sd127;
       else if (tmp_q < -32'sd128)
-        quantize32 = -8'sd128;
+        quantize32 = 8'sh80;
       else
         quantize32 = tmp_q[7:0];
     end
@@ -159,7 +159,7 @@ module bearing_cnn_demo (
       if (q > 32'sd127)
         gap_div128 = 8'sd127;
       else if (q < -32'sd128)
-        gap_div128 = -8'sd128;
+        gap_div128 = 8'sh80;
       else
         gap_div128 = q[7:0];
     end
