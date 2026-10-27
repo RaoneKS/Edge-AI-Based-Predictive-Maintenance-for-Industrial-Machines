@@ -40,3 +40,12 @@ set_location_assignment PIN_AC22 -to LEDR[9]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to LEDR
 
 set_global_assignment -name LAST_QUARTUS_VERSION "25.1std.0 Lite Edition"
+
+# Identify asynchronous synchronizer chains for metastability analysis.
+set_global_assignment -name SYNCHRONIZER_IDENTIFICATION "FORCED IF ASYNCHRONOUS"
+
+# Explicit output drive and slow slew settings for DE10-Standard LEDs.
+
+# Explicit output settings for the DE10-Standard LED bus.
+set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to LEDR
+set_instance_assignment -name SLEW_RATE 0 -to LEDR
