@@ -27,6 +27,10 @@ module tb_cnn_inference_top;
   integer rtl_only_error_count;
   integer ref_only_error_count;
   integer cycle_count_at_start;
+  integer latency_this_window;
+  integer latency_sum;
+  integer latency_min;
+  integer latency_max;
   integer ref_bad;
   integer rtl_bad;
   integer run_windows;
@@ -126,6 +130,7 @@ module tb_cnn_inference_top;
     class_total0=0;class_total1=0;class_total2=0;class_total3=0;
     class_correct0=0;class_correct1=0;class_correct2=0;class_correct3=0;
     logit_matches=0;pred_matches=0;err_count=0;
+    latency_sum=0;latency_min=32'h7fffffff;latency_max=0;
     rst_n=0;start=0;window_valid=0;window_sample=0;
     repeat(5) @(posedge clk); @(negedge clk); rst_n=1;
 
@@ -136,6 +141,10 @@ module tb_cnn_inference_top;
         window_sample=in_mem[w*W+s];window_valid=1;@(negedge clk);window_valid=0;
       end
       wait(done);@(posedge clk);
+      latency_this_window = cycle_count - cycle_count_at_start;
+      latency_sum = latency_sum + latency_this_window;
+      if (latency_this_window < latency_min) latency_min = latency_this_window;
+      if (latency_this_window > latency_max) latency_max = latency_this_window;
 
       // Exact stage-by-stage checks for the first 32 windows.
       if (w < 32) begin
@@ -267,6 +276,8 @@ module tb_cnn_inference_top;
     $display("Class 2: %0d/%0d errors=%0d",class_correct2,class_total2,class_total2-class_correct2);$display("Class 3: %0d/%0d errors=%0d",class_correct3,class_total3,class_total3-class_correct3);
     $display("Reference expected accuracy: 462/512 = 90.234375%%");
     $display("TOTAL_DUT_CLOCK_CYCLES=%0d",cycle_count);
+    $display("WINDOW_LATENCY_CYCLES min=%0d max=%0d avg=%0d",
+      latency_min,latency_max,latency_sum/run_windows);
     if(pred_matches!=run_windows) begin $display("ERROR: RTL/reference prediction count is %0d, expected %0d",pred_matches,run_windows);$fatal(1);end
     if(logit_matches!=run_windows*4) begin $display("ERROR: Exact logits mismatch");$fatal(1);end
     $display("CNN_E2E_TEST_PASSED");$finish(0);
