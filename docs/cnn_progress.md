@@ -114,3 +114,33 @@ bash quartus/de10_systolic_cnn/run_quartus.sh
 The full CNN simulation must show 2048/2048 logits, 512/512 reference predictions, 50 common label-error indices, 0 RTL-only/reference-only errors, all 32 first-window intermediate checks, and no systolic overflow. The DE10 wrapper test must match normal class 0 and outer class 3 with no overflow. Quartus timing is accepted only after the reports confirm the actual recognized 20 ns clock, acceptable unconstrained-path status, and nonnegative relevant setup/hold slack.
 
 The generic accelerator test generator has ten cases whose listed output counts sum to 792; the acceptance document still demands 784 and rejects 792. This remains a separate unresolved provenance discrepancy and is not silently changed.
+
+
+## Follow-up completion work — software acceptance and DE10 project
+
+### Added to the audit branch (not yet locally executed)
+
+- `rtl/cnn_inference_top.sv`: exports a sticky `overflow_seen` output that latches if any systolic tile completes with a PE overflow flag.
+- `verification/scripts/prepare_cnn_iverilog_vectors.py`: now regenerates the golden Conv1, MaxPool, Conv2, and GAP tensors for the first 32 windows from the same `reference_inference()` used for final reference logits.
+- `tb/tb_cnn_inference_top.sv`: now checks all 65,536 Conv1 values, 32,768 MaxPool values, 32,768 Conv2 values, and 256 GAP values for the first 32 windows; records RTL/reference error indices and their overlap; fails if the full 512-window error-index sets are not identical; fails on systolic overflow; and reports cycle counts/latency.
+- `verification/scripts/audit_quantization_contract.py` and `docs/QUANTIZATION_CONTRACT.md`: compare the exact deployed arithmetic-shift/truncating-GAP contract with the rounded training metric path. The script writes a machine-readable report and verifies its floor/truncation result against the authoritative committed logits.
+- `quartus/de10_systolic_cnn/`: added a board wrapper around `cnn_inference_top`, a Cyclone V DE10-Standard QSF, a 20 ns SDC, normal/outer wrapper testbench, Icarus wrapper runner, Quartus compile/TimeQuest scripts, and operation guide. This project is separate from the older time-multiplexed `de10_standard_hw` project and directly builds the systolic-connected CNN top.
+- `verification/scripts/run_cnn_software_acceptance.sh`: one command to run the adapter, 512-window CNN plus intermediate checks, quantization audit, and DE10 wrapper Icarus tests, saving logs under `sim/acceptance_logs/`.
+- Teammate guides were updated to explain the separate systolic DE10 project and the expanded test commands.
+
+### Holdout split source audit
+
+The checked-in `ml/train_and_export.py::data` function sorts four recording files per class, trains on `fs[:-1]`, and uses `fs[-1:]` for the test split. The authoritative verification vector builder selects the same last sorted file for each class and extracts 128 windows per class. This code establishes file-level recording separation between the training recordings and the held-out recording in this repository's split. This does not independently validate the upstream dataset's acquisition provenance, but no cross-split windowing of the same MAT recording is specified by these scripts.
+
+### Still awaiting local evidence
+
+The additions above are source changes only. They must not be called passing until the user pulls the branch and runs:
+
+```bash
+bash verification/scripts/run_cnn_software_acceptance.sh
+bash quartus/de10_systolic_cnn/run_quartus.sh
+```
+
+The first command must show the new intermediate-tensor checks, error-index agreement, no systolic overflow, quantization audit results, and normal/outer board-wrapper tests. The second must complete Quartus compile/fit/assembler and TimeQuest reports. Report review must confirm the 20 ns clock, unconstrained paths, slow-model setup slack, and fast-model hold slack. The physical DE10 512-window accuracy remains NOT MEASURED unless the board is run.
+
+The generic accelerator count discrepancy remains unresolved: the ten current directed cases' listed output counts sum to 792, while the acceptance document specifies 784 and warns against substituting 792. Do not silently change either number or claim that this legacy baseline is accepted until its count convention is resolved.
