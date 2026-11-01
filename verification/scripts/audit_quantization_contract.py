@@ -52,8 +52,17 @@ def rounded_inference(window: np.ndarray, ref: dict) -> np.ndarray:
     # torch.round uses ties-to-even, matching np.rint.
     gap = np.rint(gap_sum.astype(np.float64) / 128.0).astype(np.int8)[None, :]
 
-    fc = gap.astype(np.int64) @ ref["clf_w"].astype(np.int64)
-    fc = fc + ref["clf_b"].astype(np.int64)
+    # The exported classifier matrix is padded to 8 output columns for the
+    # hardware memory layout, but this network has only 4 logical classes.
+    # Slice to those 4 outputs so the FC result matches the 4-element bias.
+    clf_w = ref["clf_w"][:, :4].astype(np.int64)
+    clf_b = ref["clf_b"].astype(np.int64)
+    if clf_w.shape != (8, 4) or clf_b.shape != (4,):
+        raise ValueError(
+            f"Unexpected classifier dimensions: weights={clf_w.shape}, bias={clf_b.shape}"
+        )
+    fc = gap.astype(np.int64) @ clf_w
+    fc = fc + clf_b
     logits = quantize(fc, 5, False, True)[0, :4]
     return logits.astype(np.int32)
 
