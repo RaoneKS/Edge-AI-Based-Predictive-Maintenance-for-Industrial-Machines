@@ -1,7 +1,7 @@
 `timescale 1ns/1ps
 module tb_de10_systolic_cnn_top;
   logic CLOCK_50 = 1'b0;
-  logic [0:0] KEY = 1'b0;
+  logic [0:0] KEY = 1'b1;
   logic [1:0] SW = 2'b00;
   logic [9:0] LEDR;
   integer timeout_cycles;
@@ -39,6 +39,8 @@ module tb_de10_systolic_cnn_top;
 
   initial begin
     repeat(5) @(negedge CLOCK_50);
+    KEY[0]=1'b0;
+    repeat(3) @(negedge CLOCK_50);
     KEY[0]=1'b1;
     repeat(5) @(negedge CLOCK_50);
 
