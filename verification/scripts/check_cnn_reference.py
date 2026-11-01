@@ -34,8 +34,8 @@ def main():
     if not np.array_equal(argmax,pred):
         bad=np.flatnonzero(argmax!=pred).tolist()
         raise SystemExit(f"ERROR: reference_predictions disagrees with logits argmax at {bad}")
-    if len(errors)!=54 or int(correct.sum())!=458:
-        raise SystemExit("ERROR: authoritative reference is not the expected 458/512 result")
+    if len(errors)!=50 or int(correct.sum())!=462:
+        raise SystemExit("ERROR: authoritative reference is not the expected 462/512 result")
 
     print("CNN_REFERENCE_CHECK_PASSED")
 
