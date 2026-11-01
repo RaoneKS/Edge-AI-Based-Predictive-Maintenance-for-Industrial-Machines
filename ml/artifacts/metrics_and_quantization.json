@@ -10,7 +10,7 @@
   "window_samples": 256,
   "normalization": "per-window zero mean/unit deviation",
   "fp32_accuracy": 0.923828125,
-  "integer_int8_accuracy": 0.90234375,
+  "integer_int8_accuracy": 0.89453125,
   "activation_spec": {
     "input": {
       "scale": 0.0625,
