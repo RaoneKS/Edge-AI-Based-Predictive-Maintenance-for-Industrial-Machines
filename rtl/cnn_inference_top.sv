@@ -25,7 +25,8 @@ module cnn_inference_top (
   output logic signed [31:0] logits2,
   output logic signed [31:0] logits3,
   output logic logits_valid,
-  output logic [31:0] cycle_count
+  output logic [31:0] cycle_count,
+  output logic overflow_seen
 );
   localparam integer W=256, P=128, C=8;
 
@@ -76,6 +77,7 @@ module cnn_inference_top (
       idx <= 0;
       tile_idx <= 0;
       cycle_count <= 0;
+      overflow_seen <= 1'b0;
       tile_start <= 1'b0;
       tile_act <= '0;
       logits0 <= 0;
@@ -92,6 +94,8 @@ module cnn_inference_top (
       cycle_count <= cycle_count + 1'b1;
       // Default to a one-cycle start pulse; setup states assert it.
       tile_start <= 1'b0;
+      if (tile_done && tile_overflow)
+        overflow_seen <= 1'b1;
 
       case (state)
         IDLE: begin
