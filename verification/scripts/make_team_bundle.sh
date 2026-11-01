@@ -7,6 +7,9 @@ cd "$ROOT"
 
 REF="${1:-HEAD}"
 OUTPUT="${2:-$HOME/fpga-ai-accelerator-team-bundle.zip}"
+if [[ "$OUTPUT" != /* ]]; then
+  OUTPUT="$ROOT/$OUTPUT"
+fi
 mkdir -p "$(dirname "$OUTPUT")"
 
 if ! git rev-parse --verify "${REF}^{commit}" >/dev/null 2>&1; then
