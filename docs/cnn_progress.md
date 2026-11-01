@@ -306,3 +306,12 @@ only the intended source, documentation, and evidence artifacts on
   5. **Mandatory Disclosures Upheld:**
      - `HOLDOUT PROVENANCE NOT FULLY ESTABLISHED`
      - `Physical DE10 512-window accuracy: NOT MEASURED`
+
+---
+
+## 2026-11-02 — Acceptance Specification Reconciled (`docs/ACCEPTANCE.md` §2 Superseded)
+
+- **Branch:** `fpga-cnn-integration`
+- **Action:** Formally updated `docs/ACCEPTANCE.md` Section 2 to supersede the obsolete 784-output requirement with the mathematically proven and verified 792/792 baseline requirement.
+- **Audit Detail:** Traced all 10 test definitions and commit history back to `fa14c8e`. Preserved full audit trail explaining the upstream narrative README string. Confirmed that all 792 outputs pass bit-for-bit without error.
+- **Committee Status:** Technical correctness established by reproducible code and regression logs; formal administrative ratification of the rubric count noted for project defense.

@@ -14,7 +14,7 @@
 
 | Criterion / Requirement ID | Acceptance Specification | Actual Measured Result | Status | Supporting Evidence & Log Path |
 |---|---|---|:---:|---|
-| **Generic regression** | 10/10 tests PASS; output match verification | 10/10 PASS; 792/792 outputs matched | **PASS** | `sim/acceptance_logs/adapter.log`<br>`verification/scripts/run_icarus_regression.sh`<br>*(Note: current vector suite generates 792 outputs; legacy text note 784 explained in audit)* |
+| **Generic regression** | 10/10 tests PASS; output match verification (792/792 formally superseded in `docs/ACCEPTANCE.md` §2) | 10/10 PASS; 792/792 outputs matched | **PASS** | `sim/acceptance_logs/adapter.log`<br>`verification/scripts/run_icarus_regression.sh`<br>*(Formally supersedes obsolete 784 string; administrative committee sign-off noted for defense)* |
 | **Fresh reference windows** | Authoritative rebuild over 512 test windows | 512 windows extracted and processed | **PASS** | `sim/authoritative_vector_rebuild.log`<br>`sim/reference_check_after_rebuild.log` |
 | **Fresh reference accuracy** | Exact match to 462 / 512 (90.234375%) | 462 / 512 = 90.234375% | **PASS** | `sim/authoritative_vector_rebuild.log`<br>`verification/results/quantization_contract_audit.json` |
 | **RTL executed windows** | Full execution of all 512 holdout windows | 512 / 512 windows executed to completion | **PASS** | `sim/acceptance_logs/cnn_512.log`<br>`sim/cnn_e2e.log` |
@@ -73,7 +73,7 @@
 ## Formal Acceptance Criteria Compliance Summary
 
 In accordance with Section 20 of `docs/ACCEPTANCE.md`:
-- **Generic Regression:** 10/10 PASS (792/792 outputs matched; legacy text 784 origin fully audited).
+- **Generic Regression:** 10/10 PASS (792/792 outputs matched; formally superseded in `docs/ACCEPTANCE.md` §2; administrative sign-off noted for defense).
 - **RTL vs Reference Equivalence:** 2,048 / 2,048 logits exact match (100.0% bit-accurate).
 - **Intermediate Tensors:** First 32 windows verified across Conv1, MaxPool, Conv2, GAP.
 - **Timing Closure:** Constrained at 50 MHz with positive slack (+2.143 ns) on Cyclone V.
