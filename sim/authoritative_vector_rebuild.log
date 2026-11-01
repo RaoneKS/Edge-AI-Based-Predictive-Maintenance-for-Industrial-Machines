@@ -1,0 +1,20 @@
+✓ Loaded manifest: phase3-de10-int8-v1
+
+=== Validating CNN Reference Matrices ===
+  conv1_weights_kxoc_int8.npy: shape=(8, 8), dtype=int8
+  conv1_bias_accumulator_int32.npy: shape=(8,), dtype=int32
+  conv2_weights_kxoc_int8.npy: shape=(24, 8), dtype=int8
+  conv2_bias_accumulator_int32.npy: shape=(8,), dtype=int32
+  classifier_weights_kxoc_int8.npy: shape=(8, 8), dtype=int8
+  classifier_bias_accumulator_int32.npy: shape=(4,), dtype=int32
+Wrote input_int8.npy: shape=(512, 256), dtype=int8
+Wrote reference_logits_int8.npy: shape=(512, 4), dtype=int32
+Wrote reference_predictions.npy: shape=(512,), dtype=int32
+Wrote reference_labels.npy: shape=(512,), dtype=int32
+Wrote conv1_weights.npy: shape=(8, 8), dtype=int8
+Wrote conv1_bias.npy: shape=(8,), dtype=int32
+Wrote conv2_weights.npy: shape=(24, 8), dtype=int8
+Wrote conv2_bias.npy: shape=(8,), dtype=int32
+Wrote classifier_weights.npy: shape=(8, 8), dtype=int8
+Wrote classifier_bias.npy: shape=(4,), dtype=int32
+AUTHORITATIVE_REFERENCE_ACCURACY=462/512

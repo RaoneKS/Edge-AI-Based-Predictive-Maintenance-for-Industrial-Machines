@@ -21,44 +21,50 @@
 
 ## Industrial Predictive-Maintenance Application
 
-The repository also contains a fixed-model CWRU bearing-vibration deployment under
-`quartus/de10_standard_hw/`.  This application uses the exported INT8 CNN:
+**Project Title:** Edge-AI-Based Predictive Maintenance for Industrial Machines
+**Authoritative Acceptance Specification:** [`docs/ACCEPTANCE.md`](docs/ACCEPTANCE.md)
+**Final Evaluation Deliverables:**
+- 📊 **[Final Evidence Table](docs/FINAL_EVIDENCE_TABLE.md)** — Criterion-by-criterion evidence table matching Section 19 of `docs/ACCEPTANCE.md`.
+- 📑 **[Final Acceptance & Verification Report](docs/FINAL_ACCEPTANCE_REPORT.md)** — Exhaustive audit, simulation results, Quartus STA, and limitations.
+- 🔬 **[Research Claims & Technical Contributions](docs/RESEARCH_CLAIMS.md)** — Verified scientific contributions and mathematical formulation.
+- 🚀 **[Demonstration & Reproduction Guide](docs/FINAL_DEMONSTRATION_GUIDE.md)** — Exact step-by-step reproduction commands for evaluators.
+- 🎓 **[Professor Technical Q&A Guide](docs/PROFESSOR_QA.md)** — Detailed Q&A for IoT/Embedded Systems and AI Accelerator professors.
+
+The predictive-maintenance processing chain utilizes **vibration data exclusively** from the CWRU 12 kHz bearing dataset to classify 4 operational machine conditions (Normal, Inner-Race Fault, Ball Fault, Outer-Race Fault) using an exported INT8 1D-CNN:
 
 ```text
-256-sample vibration window
+256-sample vibration window (12 kHz, ~21.33 ms)
         ↓
-Conv1D 1→8, K=5
+Conv1D 1→8, K=5 (1 tile: 8×8 systolic execution)
         ↓
-ReLU + INT8 requantization
+ReLU + INT8 requantization (shift = 8)
         ↓
 MaxPool1D(2)
         ↓
-Conv1D 8→8, K=3
+Conv1D 8→8, K=3 (logical K=24: three 8×8 K-tiles, INT32 accumulation)
         ↓
-ReLU + INT8 requantization
+ReLU + INT8 requantization (shift = 8)
         ↓
 GlobalAveragePool1D(128)
         ↓
-8×8 INT8 classifier
+8×8 INT8 classifier (shift = 5)
         ↓
-4-class bearing condition
+4-class bearing condition logits: [Normal, Inner, Ball, Outer]
 ```
 
-The board-level application engine uses **64 parallel INT8 MAC datapaths** for
-the convolution/classifier matrix operations.  The reusable generic
-`rtl/inference_accelerator_top.sv` remains available as the tiled accelerator
-baseline; the application engine is kept separate so its fixed CNN scheduling
-does not obscure the generic accelerator's verification.
-
-The exact exported-model reference was recomputed from the committed artifacts:
-**462/512 = 90.234375%** on the recording-level CWRU test holdout.  The two
-deterministic board demo cases produce:
-
-- normal: logits `[39, 2, -36, -51]`, class `0`
-- outer: logits `[-33, 3, 9, 15]`, class `3`
-
-`APPLICATION_ACCELERATOR.md` documents the application datapath and verification
-status.
+### Key Verification & Timing Sign-Off
+- **RTL vs. Software Golden Model Equivalence:** **2,048 / 2,048 logits exact match** (100% bit-accurate across all 512 test windows).
+- **Classification Accuracy:** **462 / 512 = 90.234375%** on the held-out test split.
+- **Intermediate Tensors Checked (first 32 windows):** 65,536 Conv1, 32,768 MaxPool, 32,768 Conv2, 256 GAP outputs bit-identical.
+- **Deterministic Inference Latency:** **15,129 clock cycles** ($302.58\text{ }\mu\text{s}$ at 50 MHz), representing a $1.42\%$ duty cycle per 21.33 ms window.
+- **DE10-Standard (Cyclone V `5CSXFC6D6F31C6`) Sign-Off:**
+  - Status: **`DE10 MAPPABLE AND MEETS 50 MHz TIMING`**
+  - Clock: 50.0 MHz (20.000 ns period)
+  - Worst Setup Slack: **+2.143 ns** (Slow 85°C model)
+  - Worst Hold Slack: **+0.118 ns** (Fast 85°C model)
+  - Unconstrained Paths: **0**
+  - Utilization: 30,866 ALMs (74%), 64 DSPs (57%), 40,254 Registers.
+  - Bitstream: `quartus/de10_systolic_cnn/output_files/de10_systolic_cnn.sof` successfully generated.
 
 
 ## What This Is
@@ -236,7 +242,7 @@ fpga-ai-accelerator/
 │   ├── scripts/
 │       ├── golden_model.py           #   Bit-accurate Python reference
 │       └── test_generator.py         #   Automated test vector generation
-└── README.md         
+└── README.md
 ```
 
 ---

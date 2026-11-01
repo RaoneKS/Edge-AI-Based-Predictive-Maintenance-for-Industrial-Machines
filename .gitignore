@@ -50,3 +50,21 @@ quartus/*/output_files/*.smsg
 quartus/de10_standard_hw/*.before_c1_pipeline
 quartus/de10_standard_hw/*.before_c2_pipeline
 quartus/de10_standard_hw/*.dsp_backup
+
+# Quartus generated databases
+quartus/*/db/
+quartus/*/incremental_db/
+
+# Simulation executables
+*.vvp
+*.out
+
+# Temporary RTL/testbench backups
+*.before_*
+
+# Quartus transient output files
+*.done
+*.jdi
+*.pin
+*.sld
+*.smsg
