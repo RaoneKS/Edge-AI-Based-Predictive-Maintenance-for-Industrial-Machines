@@ -5,7 +5,7 @@ module tb_cnn_inference_top;
   logic signed [7:0] window_sample;
   logic signed [31:0] logits0,logits1,logits2,logits3;
   logic [31:0] cycle_count;
-  logic signed [7:0] c1w_mem[0:39]; logic signed [31:0] c1b_mem[0:7];
+  logic signed [7:0] c1w_mem[0:63]; logic signed [31:0] c1b_mem[0:7];
   logic signed [7:0] c2w_mem[0:191]; logic signed [31:0] c2b_mem[0:7];
   logic signed [7:0] clfw_mem[0:31]; logic signed [31:0] clfb_mem[0:3];
   logic signed [7:0] in_mem[0:N*W-1]; logic signed [31:0] ref_mem[0:N*4-1];
@@ -97,13 +97,13 @@ module tb_cnn_inference_top;
     class_correct0=0;class_correct1=0;class_correct2=0;class_correct3=0;
     logit_matches=0;pred_matches=0;err_count=0;
     rst_n=0;start=0;window_valid=0;window_sample=0;
-    repeat(5) @(posedge clk);rst_n=1;
+    repeat(5) @(posedge clk); @(negedge clk); rst_n=1;
 
     for(w=0;w<N;w=w+1) begin
-      @(posedge clk);start=1;@(posedge clk);start=0;
+      @(negedge clk);start=1;@(negedge clk);start=0;
       for(s=0;s<W;s=s+1) begin
-        while(!window_ready) @(posedge clk);
-        window_sample=in_mem[w*W+s];window_valid=1;@(posedge clk);window_valid=0;
+        while(!window_ready) @(negedge clk);
+        window_sample=in_mem[w*W+s];window_valid=1;@(negedge clk);window_valid=0;
       end
       wait(done);@(posedge clk);
 
@@ -126,10 +126,10 @@ module tb_cnn_inference_top;
     end
 
     // Explicit back-to-back normal -> outer without reset.
-    @(posedge clk);start=1;@(posedge clk);start=0;
+    @(negedge clk);start=1;@(negedge clk);start=0;
     for(s=0;s<W;s=s+1) begin
-      while(!window_ready) @(posedge clk);
-      window_sample=in_mem[s];window_valid=1;@(posedge clk);window_valid=0;
+      while(!window_ready) @(negedge clk);
+      window_sample=in_mem[s];window_valid=1;@(negedge clk);window_valid=0;
     end
     wait(done);@(posedge clk);
     if(logits0!==ref_mem[0]) begin $display("ERROR: back-to-back normal mismatch c0");$fatal(1);end
@@ -137,10 +137,10 @@ module tb_cnn_inference_top;
     if(logits2!==ref_mem[2]) begin $display("ERROR: back-to-back normal mismatch c2");$fatal(1);end
     if(logits3!==ref_mem[3]) begin $display("ERROR: back-to-back normal mismatch c3");$fatal(1);end
 
-    @(posedge clk);start=1;@(posedge clk);start=0;
+    @(negedge clk);start=1;@(negedge clk);start=0;
     for(s=0;s<W;s=s+1) begin
-      while(!window_ready) @(posedge clk);
-      window_sample=in_mem[384*W+s];window_valid=1;@(posedge clk);window_valid=0;
+      while(!window_ready) @(negedge clk);
+      window_sample=in_mem[384*W+s];window_valid=1;@(negedge clk);window_valid=0;
     end
     wait(done);@(posedge clk);
     if(logits0!==ref_mem[384*4+0]) begin $display("ERROR: back-to-back outer mismatch c0");$fatal(1);end
@@ -149,18 +149,18 @@ module tb_cnn_inference_top;
     if(logits3!==ref_mem[384*4+3]) begin $display("ERROR: back-to-back outer mismatch c3");$fatal(1);end
 
     // Explicit same-window repeat without reset.
-    @(posedge clk);start=1;@(posedge clk);start=0;
+    @(negedge clk);start=1;@(negedge clk);start=0;
     for(s=0;s<W;s=s+1) begin
-      while(!window_ready) @(posedge clk);
-      window_sample=in_mem[s];window_valid=1;@(posedge clk);window_valid=0;
+      while(!window_ready) @(negedge clk);
+      window_sample=in_mem[s];window_valid=1;@(negedge clk);window_valid=0;
     end
     wait(done);@(posedge clk);
     repeat_logit0=logits0;repeat_logit1=logits1;repeat_logit2=logits2;repeat_logit3=logits3;
 
-    @(posedge clk);start=1;@(posedge clk);start=0;
+    @(negedge clk);start=1;@(negedge clk);start=0;
     for(s=0;s<W;s=s+1) begin
-      while(!window_ready) @(posedge clk);
-      window_sample=in_mem[s];window_valid=1;@(posedge clk);window_valid=0;
+      while(!window_ready) @(negedge clk);
+      window_sample=in_mem[s];window_valid=1;@(negedge clk);window_valid=0;
     end
     wait(done);@(posedge clk);
     if(logits0!==repeat_logit0 || logits1!==repeat_logit1 || logits2!==repeat_logit2 || logits3!==repeat_logit3) begin
@@ -176,7 +176,7 @@ module tb_cnn_inference_top;
     $display("True-label accuracy: %0d/%0d",class_correct0+class_correct1+class_correct2+class_correct3,N);
     $display("Class 0: %0d/%0d",class_correct0,class_total0);$display("Class 1: %0d/%0d",class_correct1,class_total1);
     $display("Class 2: %0d/%0d",class_correct2,class_total2);$display("Class 3: %0d/%0d",class_correct3,class_total3);
-    $display("Reference expected accuracy: 458/512 = 89.453125%%");
+    $display("Reference expected accuracy: 462/512 = 90.234375%%");
     if(pred_matches!=N) begin $display("ERROR: RTL/reference prediction count is %0d, expected %0d",pred_matches,N);$fatal(1);end
     if(logit_matches!=N*4) begin $display("ERROR: Exact logits mismatch");$fatal(1);end
     $display("CNN_E2E_TEST_PASSED");$finish(0);
