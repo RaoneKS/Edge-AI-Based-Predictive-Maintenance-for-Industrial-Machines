@@ -86,8 +86,14 @@ def main():
     round_correct = int(np.sum(round_pred == labels))
     logit_diff = np.argwhere(floor_logits != round_logits)
     pred_diff = np.flatnonzero(floor_pred != round_pred).tolist()
+    manifest_integer_accuracy = float(manifest.get("integer_int8_accuracy", float("nan")))
     result = {
         "windows": 512,
+        "manifest_integer_int8_accuracy": manifest_integer_accuracy,
+        "rounded_path_matches_manifest_accuracy": bool(
+            np.isfinite(manifest_integer_accuracy)
+            and abs(manifest_integer_accuracy - (round_correct / 512)) < 1e-12
+        ),
         "deployed_floor_shift_trunc_gap": {
             "correct": floor_correct,
             "accuracy": floor_correct / 512,
