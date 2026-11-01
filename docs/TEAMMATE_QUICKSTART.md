@@ -23,6 +23,10 @@ The Git-tracked source snapshot includes the SystemVerilog RTL, testbenches, Pyt
 
 The ZIP packager also includes the raw successful CNN E2E console log when it finds the completed local file `sim/cnn_systolic_integration_run.log`. It deliberately does not include `.git` history, untracked local files, personal backup copies, or simulator scratch outputs. Use `git clone` rather than the ZIP when history is required.
 
+## DE10-Standard systolic CNN
+
+The dedicated project `quartus/de10_systolic_cnn/` targets the `cnn_inference_top` + systolic adapter path (unlike the older time-multiplexed demo project). Run `bash quartus/de10_systolic_cnn/run_quartus.sh` after the Icarus wrapper test. Review the generated TimeQuest reports before claiming 50 MHz timing closure.
+
 ## Environment
 
 For the Icarus-based verification on Ubuntu/Debian:
@@ -43,8 +47,12 @@ The scripts automatically prefer `.venv/bin/python3` when it exists. Quartus is 
 From the repository root:
 
 ```bash
+bash verification/scripts/run_cnn_software_acceptance.sh
+
+# Or run each check individually:
 bash verification/scripts/run_cnn_systolic_adapter_test.sh
 bash verification/scripts/run_cnn_e2e.sh
+bash quartus/de10_systolic_cnn/run_wrapper_test.sh
 ```
 
 The CNN E2E script creates simulator outputs under `sim/`. Those files are generated locally and are not needed in the source ZIP because the script recreates them from committed vectors and artifacts.
