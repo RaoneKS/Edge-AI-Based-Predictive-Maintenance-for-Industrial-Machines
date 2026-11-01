@@ -45,7 +45,8 @@
 - Commit `2c02793aaf8bc35e62b106c30f3448543cbcfbaa` incorporates the local race-free falling-edge testbench stimulus, 64-word Conv1 weight read buffer, and corrected 462/512 accuracy banner.
 - User ran the adapter 5-case regression after this integration commit; all five tests passed. The full systolic CNN simulation compiled, then continued consuming approximately 100% CPU for at least 12 minutes without a visible progress line. Since the testbench originally only printed progress every 64 complete windows and stdout was piped through `tee`, the empty log did not distinguish slow execution from a handshake stall.
 - Follow-up commits `b064c0bba5e35a258abe16882ccb23e77a477d9b` and `70415bdefb1ac93fb74b549c914cf801c1917d1f` add a `+num_windows=N` bounded smoke mode, flush startup/progress output, and pass optional `CNN_E2E_ARGS` to `vvp`. The currently running VVP process was compiled before these changes and cannot use them.
-- No complete systolic-connected 512-window pass has yet been reported.
+- A one-window systolic-connected smoke run completed successfully on the user's local Icarus setup: `Progress: 1/1 windows`, `Prediction/reference: 1/1`, and `CNN_E2E_TEST_PASSED`. The back-to-back and same-window-repeat checks also passed. The log printed `Exact logits: 4/2048`; source inspection confirmed this was only a stale display denominator (`N*4`)—the actual pass condition already checked `logit_matches == run_windows*4`, so the one-window run verified 4/4 logits. Commit `87a02fb6e2123ccae166a2ec242f0b31396753e4` fixes the displayed denominator.
+- This smoke run is not a substitute for the full 512-window run. No complete systolic-connected 512-window pass has yet been reported.
 
 ### Generic regression count discrepancy
 
