@@ -11,7 +11,9 @@ create_timing_netlist -model slow
 read_sdc
 update_timing_netlist
 report_clocks -summary -file output_files/sta_reports/clocks_slow.txt
-check_timing -file output_files/sta_reports/check_timing_slow.txt
+check_timing -include {no_clock multiple_clock generated_clock pos_neg_clock_domain loops latches uncertainty} -file output_files/sta_reports/check_timing_slow.txt
+report_ucp -file output_files/sta_reports/unconstrained_paths_slow.txt
+report_sdc -file output_files/sta_reports/applied_sdc.txt
 report_timing -setup -npaths 20 -detail full_path -file output_files/sta_reports/setup_slow.txt
 delete_timing_netlist
 
@@ -20,7 +22,7 @@ create_timing_netlist -model fast
 read_sdc
 update_timing_netlist
 report_clocks -summary -file output_files/sta_reports/clocks_fast.txt
-check_timing -file output_files/sta_reports/check_timing_fast.txt
+check_timing -include {no_clock multiple_clock generated_clock pos_neg_clock_domain loops latches uncertainty} -file output_files/sta_reports/check_timing_fast.txt
 report_timing -hold -npaths 20 -detail full_path -file output_files/sta_reports/hold_fast.txt
 delete_timing_netlist
 
