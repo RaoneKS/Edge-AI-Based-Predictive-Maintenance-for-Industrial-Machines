@@ -144,3 +144,56 @@ bash quartus/de10_systolic_cnn/run_quartus.sh
 The first command must show the new intermediate-tensor checks, error-index agreement, no systolic overflow, quantization audit results, and normal/outer board-wrapper tests. The second must complete Quartus compile/fit/assembler and TimeQuest reports. Report review must confirm the 20 ns clock, unconstrained paths, slow-model setup slack, and fast-model hold slack. The physical DE10 512-window accuracy remains NOT MEASURED unless the board is run.
 
 The generic accelerator count discrepancy remains unresolved: the ten current directed cases' listed output counts sum to 792, while the acceptance document specifies 784 and warns against substituting 792. Do not silently change either number or claim that this legacy baseline is accepted until its count convention is resolved.
+
+## 2026-11-01 — Expanded 512-window checks and quantization audit verified
+
+The user ran the expanded software flow at commit `a7c9338` (the subsequent
+audit-only correction is commit `1b6c26a`):
+
+- Adapter regression: five deterministic trials passed.
+- Full systolic CNN: 512/512 windows completed.
+- Exact final logits: 2,048/2,048.
+- RTL/reference predictions: 512/512.
+- Label-error sets: 50 reference errors and 50 RTL errors, with 50 common,
+  zero RTL-only, and zero reference-only indices.
+- Intermediate tensors: exact checks passed for the first 32 windows:
+  Conv1 65,536 values, MaxPool 32,768, Conv2 32,768, and GAP 256.
+- Systolic overflow: none observed.
+- DUT cycles: 7,807,592 total; latency 15,129 cycles per window
+  (min=max=average for this run).
+- Label accuracy against the held-out labels: 462/512 (90.234375%), equal
+  to the deployed Python reference.
+
+### Quantization audit finding
+
+The exact saved checkpoint's PyTorch training `integer()` function was run
+against the same 512 windows used by the reference vectors. The quantized
+inputs were identical to the committed vector inputs. The independent NumPy
+rounded-path audit matched PyTorch exactly (zero differing logits and zero
+differing predictions).
+
+The training-style rounded path produced 458/512 (89.453125%). The deployed
+arithmetic-shift/truncating-GAP path produced 462/512 (90.234375%). Their
+logits differ in 1,687 elements and predictions differ on 88 windows. The
+existing manifest's training metric had incorrectly carried the deployed
+462/512 accuracy. Both artifact JSON manifests have been corrected to
+458/512 for the training metric. The deployed reference and RTL result remain
+462/512 and are still exactly equivalent.
+
+The audit script now completes and writes
+`verification/results/quantization_contract_audit.json`. The initial
+consolidated acceptance invocation stopped at a classifier-padding shape bug;
+that bug was fixed in commit `1b6c26a`, and the corrected standalone audit
+and training-path diagnostic both passed.
+
+### Remaining local validation
+
+- Rerun `bash verification/scripts/run_cnn_software_acceptance.sh` on the
+  latest branch revision to complete the consolidated run, including the
+  DE10 wrapper Icarus test (not yet evidenced in the pasted logs).
+- Run `bash quartus/de10_systolic_cnn/run_quartus.sh` and inspect fit,
+  20 ns clock recognition, unconstrained paths, setup slack, and hold slack.
+- Physical DE10 board programming and on-board accuracy remain NOT MEASURED.
+- The separate generic regression count discrepancy (792 listed outputs
+  versus 784 specified in the legacy acceptance document) remains unresolved.
+
