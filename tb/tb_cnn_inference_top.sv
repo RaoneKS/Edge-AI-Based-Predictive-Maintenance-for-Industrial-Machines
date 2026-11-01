@@ -26,6 +26,7 @@ module tb_cnn_inference_top;
   integer common_error_count;
   integer rtl_only_error_count;
   integer ref_only_error_count;
+  integer cycle_count_at_start;
   integer ref_bad;
   integer rtl_bad;
   integer run_windows;
@@ -129,7 +130,7 @@ module tb_cnn_inference_top;
     repeat(5) @(posedge clk); @(negedge clk); rst_n=1;
 
     for(w=0;w<run_windows;w=w+1) begin
-      @(negedge clk);start=1;@(negedge clk);start=0;
+      @(negedge clk);cycle_count_at_start=cycle_count;start=1;@(negedge clk);start=0;
       for(s=0;s<W;s=s+1) begin
         while(!window_ready) @(negedge clk);
         window_sample=in_mem[w*W+s];window_valid=1;@(negedge clk);window_valid=0;
@@ -235,10 +236,7 @@ module tb_cnn_inference_top;
         ref_error_count=ref_error_count+1;
         $write("%0d,",w);
       end
-      if(rtl_bad) begin
-        rtl_error_count=rtl_error_count+1;
-        $write("");
-      end
+      if(rtl_bad) rtl_error_count=rtl_error_count+1;
       if(ref_bad && rtl_bad) common_error_count=common_error_count+1;
       else if(rtl_bad) rtl_only_error_count=rtl_only_error_count+1;
       else if(ref_bad) ref_only_error_count=ref_only_error_count+1;
@@ -252,6 +250,11 @@ module tb_cnn_inference_top;
       ref_error_count,rtl_error_count,common_error_count,rtl_only_error_count,ref_only_error_count);
     if (run_windows >= 32)
       $display("INTERMEDIATE_TENSOR_CHECKS_PASS windows=32 conv1=65536 pool=32768 conv2=32768 gap=256");
+    if (run_windows == N &&
+        (ref_error_count != 50 || rtl_error_count != 50 ||
+         common_error_count != 50 || rtl_only_error_count != 0 ||
+         ref_only_error_count != 0))
+      $fatal(1,"ERROR_INDEX_CROSSCHECK_FAILED");
     if (overflow_seen !== 1'b0)
       $fatal(1,"SYSTOLIC_OVERFLOW_DETECTED during CNN inference");
     $display("SYSTOLIC_OVERFLOW_CHECK_PASS");
@@ -263,6 +266,7 @@ module tb_cnn_inference_top;
     $display("Class 0: %0d/%0d errors=%0d",class_correct0,class_total0,class_total0-class_correct0);$display("Class 1: %0d/%0d errors=%0d",class_correct1,class_total1,class_total1-class_correct1);
     $display("Class 2: %0d/%0d errors=%0d",class_correct2,class_total2,class_total2-class_correct2);$display("Class 3: %0d/%0d errors=%0d",class_correct3,class_total3,class_total3-class_correct3);
     $display("Reference expected accuracy: 462/512 = 90.234375%%");
+    $display("TOTAL_DUT_CLOCK_CYCLES=%0d",cycle_count);
     if(pred_matches!=run_windows) begin $display("ERROR: RTL/reference prediction count is %0d, expected %0d",pred_matches,run_windows);$fatal(1);end
     if(logit_matches!=run_windows*4) begin $display("ERROR: Exact logits mismatch");$fatal(1);end
     $display("CNN_E2E_TEST_PASSED");$finish(0);
