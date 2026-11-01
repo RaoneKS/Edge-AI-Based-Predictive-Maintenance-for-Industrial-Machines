@@ -2,7 +2,7 @@
 set -euo pipefail
 
 project_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-repo_root="$(cd "$project_dir/../../.." && pwd)"
+repo_root="$(cd "$project_dir/../.." && pwd)"
 log_dir="$project_dir/output_files/acceptance_logs"
 mkdir -p "$log_dir"
 
