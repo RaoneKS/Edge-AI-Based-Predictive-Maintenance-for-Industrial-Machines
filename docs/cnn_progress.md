@@ -27,6 +27,11 @@
 - User reran `verification/scripts/build_authoritative_cnn_vectors.py` without retraining. It reported `AUTHORITATIVE_REFERENCE_ACCURACY=462/512`.
 - Fresh reference checker output: 462/512 (90.234375%), 50 errors. Per-class correct counts: class 0 128/128, class 1 124/128, class 2 83/128, class 3 127/128.
 - The prior checker failed only because its expected 458/512 and 54-error constants were stale. It is updated to the freshly reproduced 462/512 baseline; this does not establish RTL/reference equivalence.
+- User ran `bash verification/scripts/run_cnn_e2e.sh` at local HEAD `dfe2b5564306ac29959ef8bd5e107e64fd928a55`. The script's reference checker passed; Icarus compilation succeeded; simulation executed all 512 windows; result `Exact logits: 2048/2048`, `Prediction/reference: 512/512`, `True-label accuracy: 462/512`; both back-to-back and same-window-repeat tests passed; terminal marker `CNN_E2E_TEST_PASSED`.
+- The simulation was run with the user's locally modified, uncommitted RTL/testbench files (`rtl/cnn_inference_top.sv` and `tb/tb_cnn_inference_top.sv` were shown modified before the run). Preserve those edits and record their diff before committing them.
+- One non-fatal testbench warning remains: Conv1 `$readmemh` reads 64 padded weights into `c1w_mem[0:39]`. The RTL currently consumes the first 40 logical K=5 weights. Expand only the testbench read buffer to 64 entries (keep the flat module port at 40 weights) to remove the warning, then rerun the test.
+- The E2E testbench still prints the stale banner `Reference expected accuracy: 458/512 = 89.453125%`; update it to 462/512 = 90.234375%.
+- The standalone command `python3 verification/scripts/check_cnn_reference.py` failed because the system Python lacks NumPy; the E2E script subsequently completed the checker successfully using its selected Python interpreter. Use `.venv/bin/python3` for standalone checks if available.
 - Fresh vector SHA-256 values (as printed by the user): `input_int8.npy` `591aeba785cc0d6f1db92e2e4bcfb3ef292ea80761c2d2850e7d282b81d9913b`; `reference_logits_int8.npy` `e9715d4244dab05a974afd41e8af118c72a9768a61e635772c1909d4326aa231`; `reference_predictions.npy` `a308ee3c108e5a06dc2eed0137b9d17786a3d7d4c5cf43e8026793674c6af097`.
 
 ### Architecture decision requiring correction
@@ -45,4 +50,4 @@ The existing progress notes describe the adapter as an integration point, not as
 8. Run Quartus analysis/synthesis, fit, programming-file generation, `report_clocks`, and `check_timing` for the DE10-Standard target with a verified 20 ns clock.
 9. Record only measured results here. If board execution is not performed, report physical 512-window accuracy as NOT MEASURED.
 
-No simulation, Quartus, or physical-board result is claimed by this audit.
+Full CNN E2E simulation is now claimed as passed for the user's local scalar CNN RTL path, based on the reported logs above. No claim is made that the CNN path exercises the systolic adapter: the inspected CNN top ties adapter start and data inputs to zero. No Quartus or physical-board result is claimed.
