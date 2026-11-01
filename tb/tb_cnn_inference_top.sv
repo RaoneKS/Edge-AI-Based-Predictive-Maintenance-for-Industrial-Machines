@@ -14,6 +14,7 @@ module tb_cnn_inference_top;
   logic signed [1535:0] c2w_flat; logic signed [255:0] c2b_flat;
   logic signed [255:0] clfw_flat; logic signed [127:0] clfb_flat;
   integer i;
+  integer run_windows;
   integer j;
   integer k;
   integer w;
@@ -81,6 +82,16 @@ module tb_cnn_inference_top;
   initial begin clk=0;forever #5 clk=~clk;end
 
   initial begin
+    run_windows = N;
+    if ($value$plusargs("num_windows=%d", run_windows)) begin
+      if (run_windows < 1 || run_windows > N) begin
+        $display("ERROR: num_windows must be in range 1..%0d", N);
+        $fatal(1);
+      end
+    end
+    $display("CNN_E2E_WINDOWS_REQUESTED=%0d", run_windows);
+    $fflush();
+
     $readmemh("sim/cnn_vectors/input.hex",in_mem);
     $readmemh("sim/cnn_vectors/reference_logits.hex",ref_mem);
     $readmemh("sim/cnn_vectors/reference_predictions.hex",pred_mem);
@@ -99,7 +110,7 @@ module tb_cnn_inference_top;
     rst_n=0;start=0;window_valid=0;window_sample=0;
     repeat(5) @(posedge clk); @(negedge clk); rst_n=1;
 
-    for(w=0;w<N;w=w+1) begin
+    for(w=0;w<run_windows;w=w+1) begin
       @(negedge clk);start=1;@(negedge clk);start=0;
       for(s=0;s<W;s=s+1) begin
         while(!window_ready) @(negedge clk);
@@ -121,7 +132,10 @@ module tb_cnn_inference_top;
         2: begin class_total2=class_total2+1;if(got_pred==expected_label) class_correct2=class_correct2+1;end
         3: begin class_total3=class_total3+1;if(got_pred==expected_label) class_correct3=class_correct3+1;end
       endcase
-      if((w%64)==63) $display("Progress: %0d/%0d windows",w+1,N);
+      if ((w % 64) == 63 || run_windows <= 8) begin
+        $display("Progress: %0d/%0d windows",w+1,run_windows);
+        $fflush();
+      end
       @(posedge clk);
     end
 
@@ -170,15 +184,15 @@ module tb_cnn_inference_top;
     $display("BACK_TO_BACK_TEST_PASSED");
     $display("SAME_WINDOW_REPEAT_PASSED");
 
-    $display("");$display("=== CNN E2E RESULT ===");$display("Windows: %0d",N);
+    $display("");$display("=== CNN E2E RESULT ===");$display("Windows: %0d",run_windows);
     $display("Exact logits: %0d/%0d",logit_matches,N*4);
-    $display("Prediction/reference: %0d/%0d",pred_matches,N);
-    $display("True-label accuracy: %0d/%0d",class_correct0+class_correct1+class_correct2+class_correct3,N);
+    $display("Prediction/reference: %0d/%0d",pred_matches,run_windows);
+    $display("True-label accuracy: %0d/%0d",class_correct0+class_correct1+class_correct2+class_correct3,run_windows);
     $display("Class 0: %0d/%0d",class_correct0,class_total0);$display("Class 1: %0d/%0d",class_correct1,class_total1);
     $display("Class 2: %0d/%0d",class_correct2,class_total2);$display("Class 3: %0d/%0d",class_correct3,class_total3);
     $display("Reference expected accuracy: 462/512 = 90.234375%%");
-    if(pred_matches!=N) begin $display("ERROR: RTL/reference prediction count is %0d, expected %0d",pred_matches,N);$fatal(1);end
-    if(logit_matches!=N*4) begin $display("ERROR: Exact logits mismatch");$fatal(1);end
+    if(pred_matches!=run_windows) begin $display("ERROR: RTL/reference prediction count is %0d, expected %0d",pred_matches,run_windows);$fatal(1);end
+    if(logit_matches!=run_windows*4) begin $display("ERROR: Exact logits mismatch");$fatal(1);end
     $display("CNN_E2E_TEST_PASSED");$finish(0);
   end
 
