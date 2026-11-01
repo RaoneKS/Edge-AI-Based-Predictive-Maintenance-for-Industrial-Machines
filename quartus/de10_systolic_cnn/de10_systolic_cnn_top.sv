@@ -59,7 +59,8 @@ module de10_systolic_cnn_top (
     for (i=0;i<8;i=i+1) begin
       c1b_flat[i*32 +: 32] = c1_b[i];
       c2b_flat[i*32 +: 32] = c2_b[i];
-      fcb_flat[i*32 +: 32] = fc_b[i];
+      if (i < 4)
+        fcb_flat[i*32 +: 32] = fc_b[i];
     end
     for (i=0;i<192;i=i+1)
       c2w_flat[i*8 +: 8] = c2_w[i];
