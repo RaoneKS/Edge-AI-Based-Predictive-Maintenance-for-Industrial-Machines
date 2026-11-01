@@ -53,7 +53,41 @@ module cnn_inference_top (
   integer oc, k, ch, sp;
   integer input_index, flat_k, src_ch, kernel_pos;
   integer acc_tmp[0:7], sum_tmp[0:7];
-  integer q_tmp, log_tmp;
+  integer q_tmp, log_tmp, map_value;
+
+  // Constant 24-entry mapping replaces runtime divide/modulo-by-3 logic.
+  // flat_k is in [0,23], ordered as [input_channel][kernel_position].
+  function automatic logic [4:0] conv2_k_map(input integer flat_index);
+    begin
+      case (flat_index)
+        0:  conv2_k_map = {3'd0,2'd0};
+        1:  conv2_k_map = {3'd0,2'd1};
+        2:  conv2_k_map = {3'd0,2'd2};
+        3:  conv2_k_map = {3'd1,2'd0};
+        4:  conv2_k_map = {3'd1,2'd1};
+        5:  conv2_k_map = {3'd1,2'd2};
+        6:  conv2_k_map = {3'd2,2'd0};
+        7:  conv2_k_map = {3'd2,2'd1};
+        8:  conv2_k_map = {3'd2,2'd2};
+        9:  conv2_k_map = {3'd3,2'd0};
+        10: conv2_k_map = {3'd3,2'd1};
+        11: conv2_k_map = {3'd3,2'd2};
+        12: conv2_k_map = {3'd4,2'd0};
+        13: conv2_k_map = {3'd4,2'd1};
+        14: conv2_k_map = {3'd4,2'd2};
+        15: conv2_k_map = {3'd5,2'd0};
+        16: conv2_k_map = {3'd5,2'd1};
+        17: conv2_k_map = {3'd5,2'd2};
+        18: conv2_k_map = {3'd6,2'd0};
+        19: conv2_k_map = {3'd6,2'd1};
+        20: conv2_k_map = {3'd6,2'd2};
+        21: conv2_k_map = {3'd7,2'd0};
+        22: conv2_k_map = {3'd7,2'd1};
+        23: conv2_k_map = {3'd7,2'd2};
+        default: conv2_k_map = {3'd0,2'd0};
+      endcase
+    end
+  endfunction
 
   assign window_ready = (state == INPUT);
   assign done = (state == FINISH);
@@ -176,8 +210,9 @@ module cnn_inference_top (
           tile_act <= '0;
           for (k=0; k<ARRAY_ROWS; k=k+1) begin
             flat_k = tile_idx*ARRAY_ROWS + k;
-            src_ch = flat_k / 3;
-            kernel_pos = flat_k % 3;
+            map_value = conv2_k_map(flat_k);
+            src_ch = (map_value >> 2) & 7;
+            kernel_pos = map_value & 3;
             input_index = idx + kernel_pos - 1;
             tile_weights[k] <= '0;
             if (flat_k < 24) begin
