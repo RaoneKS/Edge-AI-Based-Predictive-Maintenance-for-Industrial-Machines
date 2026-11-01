@@ -68,3 +68,4 @@ quartus/*/incremental_db/
 *.pin
 *.sld
 *.smsg
+c5_pin_model_dump.txt

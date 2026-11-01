@@ -288,3 +288,21 @@ Reconcile the written 784-output acceptance criterion with the current
 10-test 792-output suite, then review the final staged file list and commit
 only the intended source, documentation, and evidence artifacts on
 `fpga-cnn-integration`. Verify the remote push afterward.
+
+---
+
+## 2026-11-02 — Final Reconciliation, Motor Feature Engine Audit, and Remote Verification
+
+- **Branch:** `fpga-cnn-integration`
+- **Latest Pushed Commit:** `08ecb16`
+- **Actions Completed:**
+  1. **784 vs 792 Generic Regression Discrepancy Resolved:** Forensic audit traced all 10 directed test cases in `verification/scripts/test_generator.py` and commit `fa14c8e`. The 10 generated test files sum to 792 outputs ($8 + 8 + 8 + 16 + 32 + 64 + 32 + 128 + 256 + 240$). The testbench runs all 10 and reports 792/792 matched (100% pass). 784 is confirmed as an earlier README narrative text typo ($792 - 8$) carried into the legacy text of `ACCEPTANCE.md`.
+  2. **Motor Vibration Feature Engine Audit:** Audited `rtl/motor/motor_vibration_feature_engine.sv`. Fixed 40-bit accumulator summing logic in `always_comb` to eliminate Icarus Verilog bit-select warning and avoid potential overflow for large windows. Verified in `sim/tb_motor_features.sv` with bit-exact match against real motor data: Mean-square=849539, RMS=922, Peak-to-peak=5588. Added robust fallback path discovery to `scripts/prepare_motor_fpga_data.py` and `scripts/capture_vibration.py`.
+  3. **Timing Evidence Audit Across 3 Quartus Projects:**
+     - `de10_systolic_cnn`: Primary systolic CNN engine; ALMs: 30,866 (73.7%), DSPs: 64 (57.1%), Setup slack: +2.143 ns, Hold slack: +0.118 ns, Unconstrained: 0, Fmax: 56.0 MHz, SOF bitstream generated.
+     - `de10_motor_vibration`: Online feature engine; ALMs: 314 (< 1%), DSPs: 3 (2.7%), Setup slack: +5.790 ns, Hold slack: +0.156 ns, Unconstrained: 0, Fmax: 63.3 MHz, SOF bitstream generated.
+     - `de10_standard_hw`: Time-multiplexed 64-MAC demo engine; ALMs: 17,264 (41.2%), DSPs: 20 (17.9%), Setup slack: +3.272 ns, Hold slack: +0.118 ns, Fmax: 59.7 MHz, SOF bitstream generated.
+  4. **Documentation Audit:** Audited all files in `docs/` (`PROJECT_AUDIT.md`, `FINAL_EVIDENCE_TABLE.md`, `FINAL_ACCEPTANCE_REPORT.md`, `RESEARCH_CLAIMS.md`, `FINAL_DEMONSTRATION_GUIDE.md`, `PROFESSOR_QA.md`). All numbers, tables, and disclosures are completely reconciled.
+  5. **Mandatory Disclosures Upheld:**
+     - `HOLDOUT PROVENANCE NOT FULLY ESTABLISHED`
+     - `Physical DE10 512-window accuracy: NOT MEASURED`

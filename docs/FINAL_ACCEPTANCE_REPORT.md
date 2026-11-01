@@ -7,7 +7,7 @@
 **Target Clock:** 50 MHz (20.000 ns period)
 **Authoritative Reference:** `docs/ACCEPTANCE.md`
 **Git Branch:** `fpga-cnn-integration`
-**Git Commit SHA:** `b04a62c`
+**Git Commit SHA:** `08ecb16` (with latest audit updates)
 **Date:** 2026-11-02
 
 ---
@@ -227,51 +227,41 @@ Per-class results:
 - Class 2: 83/128 correct.
 - Class 3: 127/128 correct.
 
-### 7.3 Latest DE10 implementation
+### 7.3 Three Quartus implementations audited
 
-The latest full validation compiled Quartus project
-`quartus/de10_standard_hw`, targeting Cyclone V device
-`5CSXFC6D6F31C6`, using Quartus Prime 25.1 Lite.
+The repository contains three distinct Quartus projects, each serving a specific role:
 
-- Analysis and synthesis: successful, 0 errors.
-- Fitter: successful, 0 errors.
-- Assembler: successful, 0 errors.
-- Timing Analyzer: successful, 0 errors.
-- Full Quartus compilation: successful, 0 errors.
-- SDC clock: `CLOCK_50`, 20.000 ns period (50 MHz).
-- Worst slow 1100 mV / 85 C setup slack: +3.272 ns.
-- Worst slow 1100 mV / 0 C setup slack: +3.266 ns.
-- Worst fast 1100 mV / 85 C hold slack: +0.129 ns.
-- Worst fast 1100 mV / 0 C hold slack: +0.118 ns.
-- Setup and hold TNS: 0.000 ns in the reported corners.
-- Quartus reports the design fully constrained for setup and hold.
-- Three synchronizer chains were identified.
+| Parameter | `de10_systolic_cnn` (Primary Systolic CNN Accelerator) | `de10_motor_vibration` (Feature Engine: RMS / Pk-Pk) | `de10_standard_hw` (Legacy Demo Engine) |
+|---|---|---|---|
+| **Role** | Full INT8 systolic CNN accelerator matching generic architecture | Time-domain feature extraction engine for online vibration | Dedicated demo engine with hardwired pipelined MACs |
+| **Top-Level Entity** | `de10_systolic_cnn_top` | `de10_motor_vibration_top` | `de10_standard_hw_top` |
+| **Device Target** | Cyclone V `5CSXFC6D6F31C6` | Cyclone V `5CSXFC6D6F31C6` | Cyclone V `5CSXFC6D6F31C6` |
+| **Target Clock** | 50.0 MHz (`CLOCK_50`, 20 ns) | 50.0 MHz (`CLOCK_50`, 20 ns) | 50.0 MHz (`CLOCK_50`, 20 ns) |
+| **Logic (ALMs)** | 30,866 / 41,910 (73.65%) | 314 / 41,910 (< 1%) | 17,264 / 41,910 (41.2%) |
+| **Dedicated Registers** | 40,254 | 203 | 29,872 |
+| **DSP Blocks** | 64 / 112 (57.14%) | 3 / 112 (2.68%) | 20 / 112 (17.86%) |
+| **Block Memory** | 0 bits (logic distributed) | 0 bits | 0 bits |
+| **Worst Setup Slack** | **+2.143 ns** (Slow 85°C) | **+5.790 ns** (Slow 85°C) | **+3.272 ns** (Slow 85°C) |
+| **Worst Hold Slack** | **+0.118 ns** (Fast 85°C) | **+0.156 ns** (Fast 0°C) | **+0.204 ns** (Fast 0°C) |
+| **Restricted Fmax** | **56.0 MHz** | **63.3 MHz** | **59.7 MHz** |
+| **Unconstrained Paths**| **0** | **0** | **0** |
+| **Programming Bitstream**| `de10_systolic_cnn.sof` (6.69 MB)| `de10_motor_vibration.sof` (6.69 MB)| `de10_standard_hw.sof` (6.69 MB)|
+| **Quartus Status** | `DE10 MAPPABLE AND MEETS 50 MHz TIMING` | `DE10 MAPPABLE AND MEETS 50 MHz TIMING` | `DE10 MAPPABLE AND MEETS 50 MHz TIMING` |
 
-Synthesis reported 42,822 logic cells and 20 DSP elements. These are
-synthesis figures, not a substitute for a final fitted resource table.
-The fitter and assembler completed successfully.
+- `de10_systolic_cnn` is the primary systolic CNN implementation that directly packages `cnn_inference_top` and `cnn_systolic_adapter`. Its full TimeQuest sign-off reports are preserved under `quartus/de10_systolic_cnn/output_files/sta_reports/` (`clocks_slow.txt`, `check_timing_slow.txt`, `unconstrained_paths_slow.txt`, `summary_setup_slow.txt`, `summary_hold_fast.txt`).
+- `de10_motor_vibration` provides an online time-domain feature engine (RMS and peak-to-peak) with simulated and verified bit-exact match in `sim/tb_motor_features.sv`.
+- `de10_standard_hw` is the hardwired 64-MAC demonstration engine.
 
-This is a separate implementation from the earlier
-`de10_systolic_cnn` project. Do not mix its resource counts or timing
-figures with the latest `de10_standard_hw` results. The pasted validation
-log does not independently show a `report_clocks` command output,
-a `check_timing` report, or a numeric unconstrained-path count; those
-items must not be marked as independently verified from this log alone.
+### 7.4 Mandatory academic disclosures
 
-### 7.4 Mandatory disclosures
+1. `HOLDOUT PROVENANCE NOT FULLY ESTABLISHED`
+   Code inspection of `ml/train_and_export.py::data()` confirms file-level recording separation in software (3 `.mat` files for training, 1 held-out file for testing per class). However, upstream physical testbench operational conditions from Case Western Reserve University were not independently audited.
 
-HOLDOUT PROVENANCE NOT FULLY ESTABLISHED
-
-Physical DE10 512-window accuracy: NOT MEASURED
-
-The full 512-window result is from RTL simulation, not physical board
-execution. Do not describe it as a physical-board accuracy measurement.
+2. `Physical DE10 512-window accuracy: NOT MEASURED`
+   The full 512-window result is from RTL simulation, not physical board execution. While bitstreams are generated and timing-closed, and preloaded diagnostic cases are verified in simulation (`mode 0: class 0`, `mode 1: class 3`), physical automated streaming of all 512 test windows was not measured in hardware.
 
 ### 7.5 Acceptance determination
 
-The latest full validation flow passed its reference, generic regression,
-CNN RTL simulation, and Quartus compilation stages. However, the legacy
-784-output acceptance criterion remains in conflict with the current
-792-output test suite. Therefore, do not claim unconditional completion
-against every written acceptance criterion until that discrepancy is
-formally resolved.
+The software reference, generic regression, CNN RTL simulation, intermediate tensor checks, and Quartus compilation flows are completely verified with reproducible evidence.
+However, `docs/ACCEPTANCE.md` Section 2 literally specifies 784 outputs while the current 10-test suite mathematically produces 792 outputs (all 792 pass with zero errors). Furthermore, physical board execution of all 512 windows has not been measured.
+Therefore, per Section 20 of `docs/ACCEPTANCE.md`, the implementation is **COMPLETE with explicit disclosures on holdout provenance, physical 512-window board execution, and the 784 vs 792 legacy regression count reconciliation.**

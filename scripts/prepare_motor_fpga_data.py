@@ -1,6 +1,14 @@
+#!/usr/bin/env python3
+import sys, glob
+from pathlib import Path
+
+# Automatically discover virtualenv dependencies if running under system python
+for p in glob.glob(str(Path(__file__).resolve().parent.parent / ".venv*" / "lib" / "python*" / "site-packages")):
+    if p not in sys.path:
+        sys.path.insert(0, p)
+
 import h5py
 import numpy as np
-from pathlib import Path
 
 source = Path("ml/data/online/sample_motor.hdf5")
 output = Path("quartus/de10_motor_vibration/motor_vibration.hex")

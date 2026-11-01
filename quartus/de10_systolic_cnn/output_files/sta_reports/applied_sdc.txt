@@ -1,0 +1,33 @@
++-------------------------------------------------------------------------------------------------------------------------------+
+; Create Clock                                                                                                                  ;
++--------------+----------+--------+------------------+------------------------+-----------+-------------------------+----------+
+; SDC Command  ; Name     ; Period ; Waveform         ; Targets                ; Add Clock ; Location                ; Comments ;
++--------------+----------+--------+------------------+------------------------+-----------+-------------------------+----------+
+; create_clock ; CLOCK_50 ; 20.000 ; { 0.000 10.000 } ; [get_ports {CLOCK_50}] ;           ; de10_systolic_cnn.sdc:2 ;          ;
++--------------+----------+--------+------------------+------------------------+-----------+-------------------------+----------+
+
++-------------------------------------------------------------------------------------------------------------------------------------------------+
+; Set Clock Uncertainty                                                                                                                           ;
++-----------------------+--------+------------+-------------------------+----------+-------------------------+-------------+-----------+----------+
+; SDC Command           ; Flags  ; From Flags ; From                    ; To Flags ; To                      ; Uncertainty ; Source    ; Comments ;
++-----------------------+--------+------------+-------------------------+----------+-------------------------+-------------+-----------+----------+
+; set_clock_uncertainty ; -setup ; -rise_from ; [get_clocks {CLOCK_50}] ; -rise_to ; [get_clocks {CLOCK_50}] ; 0.170       ; Generated ;          ;
+; set_clock_uncertainty ; -hold  ; -rise_from ; [get_clocks {CLOCK_50}] ; -rise_to ; [get_clocks {CLOCK_50}] ; 0.060       ; Generated ;          ;
+; set_clock_uncertainty ; -setup ; -rise_from ; [get_clocks {CLOCK_50}] ; -fall_to ; [get_clocks {CLOCK_50}] ; 0.170       ; Generated ;          ;
+; set_clock_uncertainty ; -hold  ; -rise_from ; [get_clocks {CLOCK_50}] ; -fall_to ; [get_clocks {CLOCK_50}] ; 0.060       ; Generated ;          ;
+; set_clock_uncertainty ; -setup ; -fall_from ; [get_clocks {CLOCK_50}] ; -rise_to ; [get_clocks {CLOCK_50}] ; 0.170       ; Generated ;          ;
+; set_clock_uncertainty ; -hold  ; -fall_from ; [get_clocks {CLOCK_50}] ; -rise_to ; [get_clocks {CLOCK_50}] ; 0.060       ; Generated ;          ;
+; set_clock_uncertainty ; -setup ; -fall_from ; [get_clocks {CLOCK_50}] ; -fall_to ; [get_clocks {CLOCK_50}] ; 0.170       ; Generated ;          ;
+; set_clock_uncertainty ; -hold  ; -fall_from ; [get_clocks {CLOCK_50}] ; -fall_to ; [get_clocks {CLOCK_50}] ; 0.060       ; Generated ;          ;
++-----------------------+--------+------------+-------------------------+----------+-------------------------+-------------+-----------+----------+
+
++-----------------------------------------------------------------------------------------------------------------------------------------------+
+; Set False Path                                                                                                                                ;
++----------------+-------+------------+----------------------+---------+----------+-----------------------+--------------------------+----------+
+; SDC Command    ; Flags ; From Flags ; From                 ; Through ; To Flags ; To                    ; Location                 ; Comments ;
++----------------+-------+------------+----------------------+---------+----------+-----------------------+--------------------------+----------+
+; set_false_path ;       ; -from      ; [get_ports {KEY[0]}] ;         ;          ;                       ; de10_systolic_cnn.sdc:5  ;          ;
+; set_false_path ;       ; -from      ; [get_ports {SW[0]}]  ;         ;          ;                       ; de10_systolic_cnn.sdc:6  ;          ;
+; set_false_path ;       ; -from      ; [get_ports {SW[1]}]  ;         ;          ;                       ; de10_systolic_cnn.sdc:7  ;          ;
+; set_false_path ;       ;            ;                      ;         ; -to      ; [get_ports {LEDR[*]}] ; de10_systolic_cnn.sdc:10 ;          ;
++----------------+-------+------------+----------------------+---------+----------+-----------------------+--------------------------+----------+

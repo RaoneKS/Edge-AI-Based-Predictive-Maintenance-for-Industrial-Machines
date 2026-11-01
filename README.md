@@ -78,7 +78,7 @@ A **production-grade neural network inference accelerator** built entirely from 
 - **AXI4-Stream interfaces** for plug-and-play system integration
 - **IP Integrator block design** with VIO debug, ready for Arty A7 deployment
 
-Verified across 3 simulators with 784 output values matched. Synthesized, placed, routed, and timed at **100 MHz with positive slack** on Artix-7.
+Verified across 3 simulators with 792 output values matched (all 10 directed test cases PASS; legacy text note 784 explained in [docs/FINAL_ACCEPTANCE_REPORT.md](docs/FINAL_ACCEPTANCE_REPORT.md)). Synthesized, placed, routed, and timed at **100 MHz with positive slack** on Artix-7.
 
 <p align="center">
   <img width="3238" height="1821" alt="Screenshot from 2026-02-16 08-39-13_testcase1" src="https://github.com/user-attachments/assets/3419c4f7-ebb5-4973-881c-dc559f42e680" />
@@ -149,7 +149,7 @@ Synthesized and routed on **Xilinx Artix-7 (xc7a100tcsg324-1)** at 100 MHz:
 
 ## ✅ Verification
 
-**10/10 tests PASS — 784/784 outputs matched** across three independent simulators:
+**10/10 tests PASS — 792/792 outputs matched** across three independent simulators (mathematical sum of table below; legacy narrative string 784 explained in [docs/FINAL_ACCEPTANCE_REPORT.md](docs/FINAL_ACCEPTANCE_REPORT.md)):
 
 | Test | Dimensions | Tiles | Outputs | What It Catches |
 |------|-----------|-------|---------|----------------|

@@ -20,7 +20,7 @@ module motor_vibration_feature_engine #(
     logic [INDEX_WIDTH-1:0] count;
     logic signed [15:0] minimum_sample, maximum_sample;
     logic [39:0] sum_squares;
-    logic [31:0] next_sum;
+    logic [39:0] next_sum;
     logic [31:0] square_value;
 
     logic [15:0] root;
@@ -33,7 +33,7 @@ module motor_vibration_feature_engine #(
 
     always_comb begin
         square_value = sample_in * sample_in;
-        next_sum = sum_squares[31:0] + square_value;
+        next_sum = sum_squares + square_value;
         candidate = {1'b0, root} | (17'd1 << sqrt_bit);
         candidate_square = candidate * candidate;
     end
