@@ -40,3 +40,5 @@ set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to LEDR
 set_instance_assignment -name SLEW_RATE 0 -to LEDR
 
 set_global_assignment -name SYNCHRONIZER_IDENTIFICATION "FORCED IF ASYNCHRONOUS"
+
+set_global_assignment -name LAST_QUARTUS_VERSION "25.1std.0 Lite Edition"
