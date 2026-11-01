@@ -43,7 +43,9 @@
 - Conv2 prepares three K=8 tiles per spatial location. It accumulates the three INT32 tile outputs and adds bias/ReLU/shift/saturation only after the third tile.
 - The classifier prepares one K=8 tile, with only its four logical output columns populated, then adds bias and applies the classifier shift/saturation.
 - Commit `2c02793aaf8bc35e62b106c30f3448543cbcfbaa` incorporates the local race-free falling-edge testbench stimulus, 64-word Conv1 weight read buffer, and corrected 462/512 accuracy banner.
-- These are source changes only at this point. No Icarus compile or full CNN simulation has yet been run on this new systolic-connected implementation. Do not infer that the earlier scalar-path 512-window PASS also applies to this new design.
+- User ran the adapter 5-case regression after this integration commit; all five tests passed. The full systolic CNN simulation compiled, then continued consuming approximately 100% CPU for at least 12 minutes without a visible progress line. Since the testbench originally only printed progress every 64 complete windows and stdout was piped through `tee`, the empty log did not distinguish slow execution from a handshake stall.
+- Follow-up commits `b064c0bba5e35a258abe16882ccb23e77a477d9b` and `70415bdefb1ac93fb74b549c914cf801c1917d1f` add a `+num_windows=N` bounded smoke mode, flush startup/progress output, and pass optional `CNN_E2E_ARGS` to `vvp`. The currently running VVP process was compiled before these changes and cannot use them.
+- No complete systolic-connected 512-window pass has yet been reported.
 
 ### Generic regression count discrepancy
 
