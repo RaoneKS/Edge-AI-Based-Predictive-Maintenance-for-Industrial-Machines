@@ -185,7 +185,7 @@ module tb_cnn_inference_top;
     $display("SAME_WINDOW_REPEAT_PASSED");
 
     $display("");$display("=== CNN E2E RESULT ===");$display("Windows: %0d",run_windows);
-    $display("Exact logits: %0d/%0d",logit_matches,N*4);
+    $display("Exact logits: %0d/%0d",logit_matches,run_windows*4);
     $display("Prediction/reference: %0d/%0d",pred_matches,run_windows);
     $display("True-label accuracy: %0d/%0d",class_correct0+class_correct1+class_correct2+class_correct3,run_windows);
     $display("Class 0: %0d/%0d",class_correct0,class_total0);$display("Class 1: %0d/%0d",class_correct1,class_total1);
