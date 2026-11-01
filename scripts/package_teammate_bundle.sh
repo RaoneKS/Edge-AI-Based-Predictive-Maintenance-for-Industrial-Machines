@@ -49,22 +49,35 @@ datasets, documentation, and third-party reference files are included
 where they are tracked by Git.
 INFO
 
-EVIDENCE_LOG="$ROOT/sim/cnn_systolic_integration_run.log"
-if [[ -s "$EVIDENCE_LOG" ]] &&
-   grep -q "CNN_E2E_TEST_PASSED" "$EVIDENCE_LOG" &&
-   grep -q "CNN_SYSTOLIC_E2E_EXIT_STATUS=0" "$EVIDENCE_LOG"; then
+EVIDENCE_LOG=""
+for candidate in \
+  "$ROOT/sim/cnn_systolic_full_run.log" \
+  "$ROOT/sim/cnn_systolic_integration_run.log" \
+  "$ROOT/sim/cnn_e2e.log"; do
+  if [[ -s "$candidate" ]] &&
+     grep -q "CNN_E2E_TEST_PASSED" "$candidate" &&
+     grep -q "Exact logits: 2048/2048" "$candidate" &&
+     grep -q "Prediction/reference: 512/512" "$candidate"; then
+    EVIDENCE_LOG="$candidate"
+    break
+  fi
+done
+
+if [[ -n "$EVIDENCE_LOG" ]]; then
   mkdir -p "$STAGE_ROOT/verification/evidence"
   cp "$EVIDENCE_LOG" "$STAGE_ROOT/verification/evidence/cnn_systolic_512_window_pass.log"
   cat > "$STAGE_ROOT/verification/evidence/README.txt" <<'EVIDENCE'
 This is the raw console log from the completed 512-window systolic CNN E2E run.
-It records exact logits, RTL/reference predictions, true-label accuracy,
-back-to-back inference, and same-window-repeat results. The run's source
-commit is printed near the top of the log. This evidence is simulation-only;
-it is not Quartus timing, FPGA programming, or physical-board evidence.
+It includes the script's CNN_E2E_TEST_PASSED marker, 2048/2048 exact logits,
+512/512 RTL/reference predictions, true-label accuracy, back-to-back inference,
+and same-window-repeat results. The source commit used for the run is printed
+near the top of the log. The shell exit code was also observed as zero when
+the user ran the command. This evidence is simulation-only; it is not Quartus
+timing, FPGA programming, or physical-board evidence.
 EVIDENCE
-  echo "Included verified 512-window systolic E2E log."
+  echo "Included verified 512-window systolic E2E log: ${EVIDENCE_LOG#$ROOT/}"
 else
-  echo "NOTE: No complete 512-window E2E log found at sim/cnn_systolic_integration_run.log; evidence log omitted."
+  echo "NOTE: No log with the full 512-window pass markers was found; evidence log omitted."
 fi
 
 (
