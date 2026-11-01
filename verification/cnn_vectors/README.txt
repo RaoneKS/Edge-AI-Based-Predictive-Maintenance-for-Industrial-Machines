@@ -20,10 +20,11 @@ Layers:
 
 Accuracy:
   FP32: 473/512
-  INT8: 458/512
+  INT8: 462/512 (90.234375%)
+  Reference errors: 50
 
 Per-class INT8:
   normal: 128/128
-  inner: 128/128
-  ball: 92/128
-  outer: 110/128
+  inner: 124/128
+  ball: 83/128
+  outer: 127/128
