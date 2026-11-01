@@ -36,9 +36,22 @@
 - Generic performance counters (`Total cycles`, `MAC active`, AXI beats, etc.) still print `x`; they are not valid measurements.
 - Fresh vector SHA-256 values (as printed by the user): `input_int8.npy` `591aeba785cc0d6f1db92e2e4bcfb3ef292ea80761c2d2850e7d282b81d9913b`; `reference_logits_int8.npy` `e9715d4244dab05a974afd41e8af118c72a9768a61e635772c1909d4326aa231`; `reference_predictions.npy` `a308ee3c108e5a06dc2eed0137b9d17786a3d7d4c5cf43e8026793674c6af097`.
 
-### Architecture decision requiring correction
+### Systolic integration implementation (not yet locally verified)
 
-The existing progress notes describe the adapter as an integration point, not as an active compute path. That is insufficient for the acceptance requirement that the CNN use the generic accelerator architecture. Conv2 must execute three K=8 systolic tiles, combine the INT32 partial sums, and only then add bias and requantize. Do not describe the adapter as integrated until the RTL and test evidence demonstrate that data actually flows through it.
+- Commit `f626bcec9c95d470be67ae8f0c62d932bb2adec5` replaces the scalar Conv1/Conv2/classifier arithmetic in `rtl/cnn_inference_top.sv` with systolic-adapter transactions.
+- Conv1 prepares one K=8 tile per spatial location (5 logical features plus 3 zero lanes), then adds INT32 bias and applies ReLU/arithmetic shift/saturation after the tile completes.
+- Conv2 prepares three K=8 tiles per spatial location. It accumulates the three INT32 tile outputs and adds bias/ReLU/shift/saturation only after the third tile.
+- The classifier prepares one K=8 tile, with only its four logical output columns populated, then adds bias and applies the classifier shift/saturation.
+- Commit `2c02793aaf8bc35e62b106c30f3448543cbcfbaa` incorporates the local race-free falling-edge testbench stimulus, 64-word Conv1 weight read buffer, and corrected 462/512 accuracy banner.
+- These are source changes only at this point. No Icarus compile or full CNN simulation has yet been run on this new systolic-connected implementation. Do not infer that the earlier scalar-path 512-window PASS also applies to this new design.
+
+### Generic regression count discrepancy
+
+- The ten current vector files contain 792 expected output values in total. Their sizes sum as follows: asymmetric 240, boundary max 8, boundary min 8, deep IC 32, deep OC 128, identity 8, large tile 256, multi-tile 64, random small 32, ReLU 16.
+- All ten tests passed in the user's latest run, matching these 792 values.
+- Local Git history reports only one available commit touching `verification/scripts/test_generator.py` (`aaaf3b7`), in which the identity case is already present. This history does not show when or why the stated 784-output acceptance baseline was established.
+- `docs/ACCEPTANCE.md` explicitly requires 784/784 and says not to substitute 792/792. Keep this criterion unresolved pending provenance; do not remove the identity test or silently change the target.
+
 
 ### Required next work
 
