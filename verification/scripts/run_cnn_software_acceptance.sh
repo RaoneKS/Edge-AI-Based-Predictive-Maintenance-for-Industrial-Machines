@@ -19,6 +19,7 @@ bash quartus/de10_systolic_cnn/run_wrapper_test.sh 2>&1 | tee sim/acceptance_log
 
 echo
 echo "========== SOFTWARE/RTL ACCEPTANCE SUMMARY =========="
-grep -E 'CNN_SYSTOLIC_ADAPTER_REGRESSION_PASS|INTERMEDIATE_TENSOR_CHECKS_PASS|SYSTOLIC_OVERFLOW_CHECK_PASS|ERROR_INDEX_COUNTS|Exact logits:|Prediction/reference:|True-label accuracy:|TOTAL_DUT_CLOCK_CYCLES=|WINDOW_LATENCY_CYCLES|CNN_E2E_TEST_PASSED' sim/acceptance_logs/cnn_512.log
+grep -E 'CNN_SYSTOLIC_ADAPTER_REGRESSION_PASS' sim/acceptance_logs/adapter.log
+grep -E 'INTERMEDIATE_TENSOR_CHECKS_PASS|SYSTOLIC_OVERFLOW_CHECK_PASS|ERROR_INDEX_COUNTS|Exact logits:|Prediction/reference:|True-label accuracy:|TOTAL_DUT_CLOCK_CYCLES=|WINDOW_LATENCY_CYCLES|CNN_E2E_TEST_PASSED' sim/acceptance_logs/cnn_512.log
 grep -E 'DE10_WRAPPER_CASE_PASS|DE10_SYSTOLIC_CNN_WRAPPER_REGRESSION_PASS' sim/acceptance_logs/de10_wrapper.log
 echo "SOFTWARE_RTL_ACCEPTANCE_PASS"
