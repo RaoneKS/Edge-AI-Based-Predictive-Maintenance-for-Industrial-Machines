@@ -56,7 +56,11 @@ fi
 echo "Compilation successful"
 echo ""
 echo "Running CNN E2E simulation..."
-vvp "${SIM_DIR}/cnn_e2e.vvp" 2>&1 | tee "${SIM_DIR}/cnn_e2e.log"
+E2E_ARGS=()
+if [[ -n "${CNN_E2E_ARGS:-}" ]]; then
+  read -r -a E2E_ARGS <<< "${CNN_E2E_ARGS}"
+fi
+vvp "${SIM_DIR}/cnn_e2e.vvp" "${E2E_ARGS[@]}" 2>&1 | tee "${SIM_DIR}/cnn_e2e.log"
 
 SIM_STATUS=${PIPESTATUS[0]}
 
