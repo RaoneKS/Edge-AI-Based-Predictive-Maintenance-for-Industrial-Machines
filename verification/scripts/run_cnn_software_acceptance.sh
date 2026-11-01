@@ -4,6 +4,13 @@ set -euo pipefail
 ROOT="$(git rev-parse --show-toplevel)"
 cd "$ROOT"
 mkdir -p sim/acceptance_logs
+if [[ -z "${PYTHON_BIN:-}" ]]; then
+  if [[ -x "$ROOT/.venv/bin/python3" ]]; then
+    export PYTHON_BIN="$ROOT/.venv/bin/python3"
+  else
+    export PYTHON_BIN="$(command -v python3)"
+  fi
+fi
 
 echo "========== SYSTOLIC ADAPTER =========="
 bash verification/scripts/run_cnn_systolic_adapter_test.sh 2>&1 | tee sim/acceptance_logs/adapter.log
@@ -12,6 +19,10 @@ echo
 echo "========== FULL 512-WINDOW CNN + INTERMEDIATE CHECKS =========="
 set -o pipefail
 bash verification/scripts/run_cnn_e2e.sh 2>&1 | tee sim/acceptance_logs/cnn_512.log
+
+echo
+echo "========== QUANTIZATION CONTRACT AUDIT =========="
+"$PYTHON_BIN" verification/scripts/audit_quantization_contract.py 2>&1 | tee sim/acceptance_logs/quantization_contract.log
 
 echo
 echo "========== DE10 BOARD WRAPPER NORMAL/OUTER TEST =========="
