@@ -155,10 +155,10 @@ Do not rely solely on stale generated files.
 
 The fresh reference must reproduce:
 
-    458 / 512
-    = 89.453125%
+    462 / 512
+    = 90.234375%
 
-INT8 reference accuracy.
+INT8 reference accuracy, using the checked-in artifact matrices and the committed authoritative vector builder.
 
 If it does not reproduce 462/512:
 
@@ -203,9 +203,9 @@ All 512 windows must actually execute.
 
 The fresh reference is expected to have:
 
-    54 reference error windows
+    50 reference error windows
 
-if it reproduces 458/512.
+if it reproduces 462/512.
 
 Cross-check the RTL/reference error indices.
 
@@ -233,7 +233,7 @@ Fresh software INT8 model vs true labels.
 
 Expected:
 
-    458/512 = 89.453125%
+    462/512 = 90.234375%
 
 ### RTL simulation accuracy
 
