@@ -29,6 +29,7 @@ available internally for SignalTap/debug but are not routed to board pins.
 From the repository root:
 
 ```bash
+bash quartus/de10_systolic_cnn/run_wrapper_test.sh
 bash quartus/de10_systolic_cnn/run_quartus.sh
 ```
 
