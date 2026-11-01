@@ -90,3 +90,27 @@ The E2E script prepares the Icarus hex files in `sim/cnn_vectors/`, compiles the
 ## Teammate bundle
 
 See `docs/TEAMMATE_QUICKSTART.md`. Run `bash scripts/package_teammate_bundle.sh` to export the committed source tree, a file manifest, checksums, and the validated full-run log when available.
+
+## 2026-11-01 — Final acceptance work added; local execution pending
+
+The following verification improvements and dedicated DE10 systolic project have been added to the audit branch. They are **source changes awaiting user-run local validation**; no PASS is claimed for them yet.
+
+1. `rtl/cnn_inference_top.sv` now exposes sticky `overflow_seen`, set when an adapter transaction completes with a PE overflow indication.
+2. `verification/scripts/prepare_cnn_iverilog_vectors.py` now recomputes and exports golden Conv1, MaxPool, Conv2, and GAP tensors for the first 32 windows using the canonical `reference_inference()` implementation.
+3. `tb/tb_cnn_inference_top.sv` now compares the first 32 windows' internal Conv1, Pool, Conv2 and GAP arrays exactly, checks overflow status, reports reference and RTL label-error indices plus overlap counts, reports total DUT clock cycles and per-window latency, and checks all 50 error indices align on a complete 512-window run.
+4. A separate DE10 wrapper and Quartus project were added under `quartus/de10_systolic_cnn/`. This project instantiates the same `cnn_inference_top` and `cnn_systolic_adapter` as the Icarus flow. The older `quartus/de10_standard_hw/` project remains unchanged and uses a separate time-multiplexed demonstration engine.
+5. The DE10 wrapper has an Icarus test for the committed normal and outer demo samples. The Quartus script compiles the new wrapper for device `5CSXFC6D6F31C6` and runs TimeQuest reports for the 20 ns clock, unconstrained paths, setup and hold.
+6. `verification/scripts/run_cnn_software_acceptance.sh` runs the adapter regression, complete CNN E2E/intermediate checks and DE10 wrapper Icarus test.
+
+### Next local commands
+
+```bash
+git pull --ff-only origin cnn-integration-audit-20261101
+bash verification/scripts/run_cnn_software_acceptance.sh
+bash verification/scripts/run_icarus_regression.sh
+bash quartus/de10_systolic_cnn/run_quartus.sh
+```
+
+The full CNN simulation must show 2048/2048 logits, 512/512 reference predictions, 50 common label-error indices, 0 RTL-only/reference-only errors, all 32 first-window intermediate checks, and no systolic overflow. The DE10 wrapper test must match normal class 0 and outer class 3 with no overflow. Quartus timing is accepted only after the reports confirm the actual recognized 20 ns clock, acceptable unconstrained-path status, and nonnegative relevant setup/hold slack.
+
+The generic accelerator test generator has ten cases whose listed output counts sum to 792; the acceptance document still demands 784 and rejects 792. This remains a separate unresolved provenance discrepancy and is not silently changed.
