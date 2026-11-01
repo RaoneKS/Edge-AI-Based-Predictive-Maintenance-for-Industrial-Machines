@@ -54,8 +54,12 @@ From the repository root:
 
 ```bash
 source .venv/bin/activate
+bash verification/scripts/run_cnn_software_acceptance.sh
+
+# Or individually:
 bash verification/scripts/run_cnn_systolic_adapter_test.sh
 bash verification/scripts/run_cnn_e2e.sh
+bash quartus/de10_systolic_cnn/run_wrapper_test.sh
 ```
 
 The E2E script uses tracked authoritative `.npy` reference vectors when present. If they are absent, it attempts to rebuild them from committed model/data artifacts. It emits generated simulator files under `sim/` and `work/`; those are local build products, not source files.
@@ -87,6 +91,10 @@ The project owner reported the following local Icarus results on 2026-11-01:
    - Reference and RTL simulation true-label accuracy: 462/512 (90.234375%). This is a simulation result, not a physical FPGA-board measurement.
 
 The full 512-window result was produced on the same systolic-connected RTL before later testbench-only updates for bounded smoke mode, output flushing and the displayed logits denominator. Re-run the two commands above on the exact commit used by your team and retain the new logs as your own reproducibility evidence.
+
+## Dedicated DE10 systolic CNN project
+
+The project under `quartus/de10_systolic_cnn/` wraps the same systolic-connected RTL used by the CNN Icarus E2E test. It has a board-level streaming wrapper, a normal/outer Icarus testbench, a Cyclone V QSF, a 20 ns SDC and a TimeQuest script. Run `bash quartus/de10_systolic_cnn/run_wrapper_test.sh` before `bash quartus/de10_systolic_cnn/run_quartus.sh`. Neither wrapper nor Quartus tests should be marked PASS until executed locally.
 
 ## Important open items — do not overstate completion
 
