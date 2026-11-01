@@ -51,6 +51,7 @@ INFO
 
 EVIDENCE_LOG=""
 for candidate in \
+  "$ROOT/sim/acceptance_logs/cnn_512.log" \
   "$ROOT/sim/cnn_systolic_full_run.log" \
   "$ROOT/sim/cnn_systolic_integration_run.log" \
   "$ROOT/sim/cnn_e2e.log"; do
